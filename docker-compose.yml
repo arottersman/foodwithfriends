@@ -1,0 +1,28 @@
+version: '3'
+services:
+  db:
+    image: "postgres:9.6.3"
+    env_file:
+      - dev.db.env
+    ports:
+      - "5432:5432"
+  service:
+    build: ./service
+    ports:
+      - "8080:8080"
+    links:
+      - "db:database"
+    volumes:
+      - ./service:/usr/src
+    working_dir: /usr/src
+    env_file:
+      - dev.service.env
+    command: "go run \
+                /usr/src/functions/apis/main.go \
+                /usr/src/functions/apis/types.go \
+                /usr/src/functions/apis/handlers.go \
+                /usr/src/functions/apis/db.go \
+                /usr/src/functions/apis/constants.go \
+                /usr/src/functions/apis/validators.go \
+                /usr/src/functions/apis/email.go \
+                /usr/src/functions/apis/auth.go"

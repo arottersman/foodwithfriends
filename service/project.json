@@ -1,0 +1,8 @@
+{
+  "name": "food_with_friends_service",
+  "description": "Backend for app to organize potlucks",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::731665330081:role/food_with_friends_service_lambda_function",
+  "environment": {}
+}
