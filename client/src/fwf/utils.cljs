@@ -3,6 +3,7 @@
    [clojure.string :as str]
    [goog.crypt.base64 :as b64]
    [re-frame.core :as re-frame]
+   [secretary.core :as secretary]
    [fwf.constants :refer [auth0-state]]))
 
 (def <sub (comp deref re-frame/subscribe))
@@ -23,3 +24,8 @@
 (defn parse-id-token [id-token]
   (b64/decodeString (second (str/split id-token #"\."))))
 
+(defn navigate-to!
+  [path]
+  (set! (.-location js/window)
+        (str "/#" path))
+  (secretary/dispatch! path))

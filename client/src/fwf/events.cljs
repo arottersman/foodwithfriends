@@ -21,7 +21,8 @@
                           auth0-audience
                           auth0-redirect-uri
                           auth0-state]]
-   [fwf.utils :refer [parse-id-token]]
+   [fwf.utils :refer [parse-id-token
+                      navigate-to!]]
    [fwf.api-helpers :refer [api-url
                             auth-header
                             server-request-date-formatter
@@ -32,8 +33,7 @@
    [fwf.db :refer [default-db
                    auth0->local-store
                    wipe-local-store
-                   wipe-local-store-if-401]]
-   [secretary.core :as secretary]))
+                   wipe-local-store-if-401]]))
 
 ;; -- Interceptors --------------------
 
@@ -50,9 +50,9 @@
 
 (def ->wipe-local-store (after wipe-local-store))
 
-(def ->events-uri (after #(secretary/dispatch! "/")))
-
 (def ->clear-auth-if-needed (after wipe-local-store-if-401))
+
+(def ->events-uri (after #(navigate-to! "/")))
 
 (def fwf-interceptors [check-spec-interceptor
                        (when ^boolean js/goog.DEBUG debug)
@@ -285,16 +285,16 @@
   ->clear-auth-if-needed]
  (fn [db [error-response]]
    (let [status (:status error-response)]
-     (as-> db d
-         (if (= status 404)
-           (assoc-in d [:the-user :user] :no-acccount)
-           (assoc-in d [:the-user :error] error-response))
-         (if (= 401 (:status error-response))
-           (do
-             (assoc d :page :login)
-             (assoc-in d [:auth0 :access-token] "")
-             (assoc-in d [:auth0 :profile] {})))
-         (assoc-in d [:the-user :stale?] false)))))
+   (-> db
+       (assoc-in [:the-user :stale?] false)
+       (cond-> (= status 404)
+         (assoc :page :create-user))
+       (cond-> (not= status 404)
+             (assoc-in [:the-user :error] error-response))
+       (cond-> (= status 401)
+         (-> (assoc :page :login)
+             (assoc-in [:auth0 :access-token] "")
+             (assoc-in [:auth0 :profile] {})))))))
 
 (reg-event-db
  :bad-create-user-response
@@ -427,7 +427,7 @@
  fwf-interceptors
  (fn [db [response]]
    (-> db
-       (assoc-in [:auth0 :error] response)
+       (assoc-in [:auth0 :error] (:status-message response))
        (assoc-in [:auth0 :polling?] false))))
 
 (reg-event-db

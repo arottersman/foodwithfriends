@@ -44,7 +44,7 @@
              (or error
                  "Sorry, something went wrong logging you in.")]))))
 
-(def history
+(defonce history
   (doto (History.)
     (goog.events/listen
      goog.history.EventType/NAVIGATE

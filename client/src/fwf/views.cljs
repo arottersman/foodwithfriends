@@ -560,7 +560,7 @@
     [:main.app
      (cond
        auth0-polling?
-       [:p.polling "getting your profile..."]
+       [:p.polling "Getting your profile..."]
        ;; needs auth?
        (or (not access-token)
            (not sub)
@@ -572,8 +572,7 @@
          "New phone, who this?"]]
        :else
          (cond ;; main page content
-           (or (= user :no-account)
-               (= page :create-user)) [user-form]
+           (= page :create-user) [user-form]
            (= page :add-host-to-user) [add-host-to-user-page]
            (= page :events) [events-page]
            (= page :create-event) [event-form]
