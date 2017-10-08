@@ -1,6 +1,7 @@
 (ns fwf.constants
   (:require [clojure.string :as str]))
 
+;; TODO set for env
 (def client-host "http://localhost:3449")
 
 (def access-token-ls-key "access-token")
@@ -23,9 +24,7 @@
    auth0-domain "/authorize?"
    "response_type=code&"
    "state=" auth0-state "&"
-   "scope=" (js/encodeURIComponent "openid profile") "&"
-   ;; "code_challenge=" challenge "&"
-   ;; "code_challenge_method=S256&"
+   "scope=" (js/encodeURIComponent "openid profile email") "&"
    "redirect_uri=" (js/encodeURIComponent
                     auth0-redirect-uri) "&"
    "client_id=" auth0-client-id "&"
