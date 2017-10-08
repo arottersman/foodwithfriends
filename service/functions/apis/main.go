@@ -13,10 +13,12 @@ import (
     "github.com/apex/go-apex"
 )
 
+
+var isDeployEnv, _ = strconv.ParseBool(os.Getenv("DEPLOY"))
+
 // Following https://medium.com/capital-one-developers/building-a-serverless-rest-api-in-go-3ffcb549ef2
 func main() {
     handler := FoodWithFriendsHTTPHandler()
-    isDeployEnv, _ := strconv.ParseBool(os.Getenv("DEPLOY"))
     if isDeployEnv {
         // Register the Lambda event handler
         apex.HandleFunc(func(event json.RawMessage,
@@ -61,10 +63,21 @@ func allowBasicAccessHeadersMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func logRequestMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !isDeployEnv {
+			fmt.Printf("%s\n\n", r)
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func foodWithFriendsMiddleware(next http.Handler) http.Handler {
-	return allowBasicAccessHeadersMiddleware(
-		preflightOptionsMiddleware(
-			authMiddleware(next)))
+	return logRequestMiddleware(
+		allowBasicAccessHeadersMiddleware(
+			preflightOptionsMiddleware(
+				authMiddleware(next))))
 }
 
 func FoodWithFriendsHTTPHandler() http.Handler {
