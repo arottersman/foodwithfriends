@@ -7,9 +7,6 @@
             [fwf.constants :refer [auth0-authorize-url]]
             [fwf.utils :refer [>evt <sub]]))
 
-(def leg-icon [:span.icon
-               {:dangerouslySetInnerHTML {:__html "&#127831;"}}])
-
 (def arrow-down [:div.expand
                  {:dangerouslySetInnerHTML {:__html "&#x25BE;"}}])
 
@@ -31,11 +28,24 @@
 (def check-icon [:span.icon
                  {:dangerouslySetInnerHTML {:__html "&#9989;"}}])
 
+(def leg-icon [:span.icon
+               {:dangerouslySetInnerHTML {:__html "&#127831;"}}])
+
+(def wine-icon [:span.icon
+                {:dangerouslySetInnerHTML {:__html "&#127863;"}}])
+
+(def salad-icon [:span.icon
+                 {:dangerouslySetInnerHTML {:__html "&#129367;"}}])
+
+(def shrimp-icon [:span.icon
+                  {:dangerouslySetInnerHTML {:__html "&#129424;"}}])
+
 (def dish->icon
   {"main" leg-icon
-   "side" fries-icon
+   "side" salad-icon
    "drinks" wine-icon
-   "appetizer" shrimp-icon}
+   "appetizer" shrimp-icon
+   nil check-icon})
 
 (defn account-nav []
   (fn []
@@ -185,7 +195,9 @@
                   :on-click #(>evt [:clear-assigned-dish-modal])}
          close-x]
         [:h2 "Great"]
-        [:p "You're assigned to bring a "  [:strong assigned-dish]]]])))
+        (dish->icon assigned-dish)
+        [:p "You're assigned to bring a "
+         [:strong assigned-dish]]]])))
 
 (defn user-detail-modal []
   (fn []
@@ -210,17 +222,16 @@
         (if assigned-dish
           [:div.user-info
            [:label "Assigned Dish"]
+           (dish->icon assigned-dish)
            [:p assigned-dish]])]])))
 
 
 (defn user-link [user]
   (fn [user]
     [:li.person
-     leg-icon
+     (dish->icon (:assigned-dish user))
      [:a.user {:on-click #(>evt [:set-user-detail user])}
-          (:name user)]
-     (if (:assigned-dish user)
-       [:span "Assigned Dish: "(:assigned-dish user)])]))
+          (:name user)]]))
 
 (defn host-user-list [users]
   (fn [users]
