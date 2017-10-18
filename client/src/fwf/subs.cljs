@@ -255,6 +255,11 @@
  (fn [db _]
    (-> db :event-form :polling?)))
 
+(reg-sub
+ :event-form/error-response
+ (fn [db _]
+   (-> db :event-form :error-response)))
+
 ;; -- Remote Dependent Subscriptions --
 
 (reg-sub-raw
@@ -329,6 +334,14 @@
      "Uh-oh, something went wrong!")))
 
 (reg-sub
+ :event-form/error-string
+ (fn [_ _]
+   [(subscribe [:event-form/error-response])])
+ (fn [[event-form/error-response] _]
+   (if error-response
+     "Uh-oh, something went wrong!")))
+
+(reg-sub
  :host-form/search-valid?
  (fn [_ _]
    [(subscribe [:host-form/address])
@@ -393,7 +406,7 @@
                       first-datetime)
                      last-day
                      (cljs-time.core/day-of-week
-                      (last rest-datetimes))
+                      (last all))
                      start-padding (repeat (- first-day 1)
                                            :not-in-month)
                      end-padding (repeat (- 7 last-day)

@@ -309,6 +309,7 @@ func HandleUserDetails(w http.ResponseWriter, auth0Id string) {
 	}
 	if err != nil {
 		http.Error(w, "Couldn't get user", 400)
+		fmt.Printf("%s\n", err.Error())
 		return
 	}
 
@@ -331,21 +332,24 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 
     err = ValidateUser(user)
     if err != nil {
-        http.Error(w, err.Error(), 400)
-        return
+	    http.Error(w, err.Error(), 400)
+	    fmt.Printf("%s", err.Error())
+	    return
     }
 
     db, err := Connect()
     if err != nil {
-        http.Error(w, err.Error(), 500)
-        return
+	    http.Error(w, "Couldn't connect to DB", 500)
+	    fmt.Printf("%s", err.Error())
+	    return
     }
 
     userId, err := CreateUser(db, user)
     db.Close()
     if err != nil {
-        http.Error(w, err.Error(), 400)
-        return
+	    http.Error(w, "Couldn't create user", 400)
+	    fmt.Printf("%s", err.Error())
+	    return
     }
 
     user.UserId = userId
@@ -362,8 +366,8 @@ func HandleEditUser(w http.ResponseWriter, r *http.Request) {
 
     err := json.NewDecoder(r.Body).Decode(&user)
     if err != nil {
-        http.Error(w, err.Error(), 400)
-        return
+	    http.Error(w, err.Error(), 400)
+	    return
     }
 
     db, err := Connect()
@@ -375,8 +379,9 @@ func HandleEditUser(w http.ResponseWriter, r *http.Request) {
     updatedUser, err := UpdateUser(db, user)
     db.Close()
     if err != nil {
-        http.Error(w, "Couldn't update user", 400)
-        return
+	    http.Error(w, "Couldn't update user", 400)
+	    fmt.Printf("%s", err.Error())
+	    return
     }
 
     json.NewEncoder(w).Encode(updatedUser)
@@ -411,8 +416,9 @@ func HandleCreateHost(w http.ResponseWriter, r *http.Request) {
     hostId, err := CreateHost(db, host)
     db.Close()
     if err != nil {
-        http.Error(w, "Couldn't create host", 400)
-        return
+	    http.Error(w, "Couldn't create host", 400)
+	    fmt.Printf("%s\n", err.Error())
+	    return
     }
 
     host.HostId = hostId

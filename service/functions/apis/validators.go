@@ -57,8 +57,16 @@ func ValidateHost(host Host) error {
     if host.MaxOccupancy == 0 {
         missingFields = append(missingFields, "maxOccupancy")
     }
+
     if len(host.Users) < 1 {
-        missingFields = append(missingFields, "users")
+	    missingFields = append(missingFields, "users")
+    } else {
+	    for _, user := range host.Users {
+		if user.UserId == 0 {
+	            missingFields = append(missingFields,
+			                   "users")
+		}
+	    }
     }
 
     if len(missingFields) > 0 {

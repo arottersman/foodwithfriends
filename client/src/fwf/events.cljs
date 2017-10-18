@@ -275,9 +275,14 @@
  :set-user
  fwf-interceptors
  (fn [db [user-response]]
-   (-> db
-       (assoc-in [:the-user :user] (parse-user user-response))
-       (assoc-in [:the-user :stale?] false))))
+   (let [user (parse-user user-response)
+         host-id (:host-id user)]
+     (-> db
+         (assoc-in [:the-user :user] user)
+         (assoc-in [:the-user :stale?] false)
+         (cond-> (or (nil? host-id)
+                     (= 0 host-id))
+           (assoc :page :add-host-to-user))))))
 
 (reg-event-db
  :set-user-error
@@ -288,7 +293,9 @@
    (-> db
        (assoc-in [:the-user :stale?] false)
        (cond-> (= status 404)
-         (assoc :page :create-user))
+         (->
+          (assoc :page :create-user)
+          (assoc-in [:the-user :user] :no-account)))
        (cond-> (not= status 404)
              (assoc-in [:the-user :error] error-response))
        (cond-> (= status 401)

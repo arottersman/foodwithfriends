@@ -66,7 +66,7 @@ func allowBasicAccessHeadersMiddleware(next http.Handler) http.Handler {
 func logRequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !isDeployEnv {
-			fmt.Printf("%s\n\n", r)
+			fmt.Printf("Requested: %s\n\n", r.URL)
 		}
 
 		next.ServeHTTP(w, r)

@@ -50,12 +50,16 @@ func CreateUser(db *sql.DB, user User) (int64, error) {
 
 
 func GetUserByAuth0Id(db *sql.DB, auth0Id string) (User, error) {
-    row := db.QueryRow(`SELECT users.user_id, users.name, users.email,
-                            users.dietary_restrictions, users.auth0_id,
-                            host_users.host_id
-                            FROM users, host_users
+    row := db.QueryRow(`SELECT users.user_id,
+                               users.name,
+                               users.email,
+                               users.dietary_restrictions,
+                               users.auth0_id,
+                               host_users.host_id
+                            FROM users
+                            LEFT JOIN host_users
+                            ON users.user_id = host_users.user_id
                             WHERE auth0_id = $1
-                            AND host_users.user_id = users.user_id
                             `, auth0Id)
 
     var (
@@ -64,7 +68,7 @@ func GetUserByAuth0Id(db *sql.DB, auth0Id string) (User, error) {
         email string
         dietary_restrictions string
         auth0_id string
-        host_id int64
+	host_id sql.NullInt64
     )
 	err := row.Scan(&user_id, &name, &email, &dietary_restrictions, &auth0_id, &host_id)
 
@@ -80,7 +84,7 @@ func GetUserByAuth0Id(db *sql.DB, auth0Id string) (User, error) {
         Email: email,
         DietaryRestrictions: dietaryRestrictionsArray,
         Auth0Id: auth0_id,
-        HostId: host_id,
+        HostId: host_id.Int64,
     }, nil
 }
 

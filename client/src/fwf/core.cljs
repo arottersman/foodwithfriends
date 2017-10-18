@@ -20,7 +20,7 @@
 (defroute "/" []
   (>evt [:set-page :events]))
 
-(defroute "/create-user/:user-id/host" [user-id]
+(defroute "/create-user/host" [user-id]
   (>evt [:set-page :add-host-to-user
          :user/set-user-id user-id]))
 
