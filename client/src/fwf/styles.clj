@@ -307,8 +307,11 @@
       :margin-top "auto"
       :margin-bottom 0
       :color white}]]
+   [:p.info {:margin-top (em 1)}]
    [:button.done
-    basic-button]])
+    basic-button
+    [:&:disabled
+     {:opacity 0.3}]]])
 
 (def user-form [[:form.user-form
     {:background white
@@ -377,6 +380,7 @@
 
    [(sel/> :.clearable-input :button)
     {:background accent
+     :color "white"
      :cursor "pointer"
      :border-radius "0 5px 5px 0"}]
 
@@ -403,7 +407,11 @@
   ])
 
 (def rsvped {:background tea-green
-             :padding "0.5em 0 0.5em 0.5em"})
+             :color white
+             :font-size (em 1)
+             :text-align "center"
+             :padding-top (em 0.3)
+             :font-weight "bolder"})
 (def rsvp {:background accent
            :font-size (em 1)
            :color white
@@ -417,8 +425,7 @@
                  :border-radius "0 5px 5px 0"
                  :margin-top (px 10)}]
    [:.rsvped (assoc rsvped
-                    :height (px 28)
-                    :width (px 33))]
+                    :height (px 60))]
    [:.rsvp (assoc rsvp :height (px 60))]])
 
 (def event-tag-under
@@ -429,7 +436,8 @@
                  :width (px 75)}]
    [(sel/> :.event-tag :.icon)
     {:margin "auto"}]
-   [:.rsvped rsvped]
+   [:.rsvped (assoc rsvped
+                    :height (px 44))]
    [:.rsvp (assoc rsvp
                   :height (px 44))]])
 
@@ -622,6 +630,7 @@
     :font-weight 800}]
   [:.error
    {:background uh-oh-red
+    :margin-top (em 0.2)
     :color "white !important"}]
   [:.hidden
    {:display "none"}]

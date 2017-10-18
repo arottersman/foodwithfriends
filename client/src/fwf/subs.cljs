@@ -436,11 +436,9 @@
  :event-form/valid?
  (fn [_ _]
    [(subscribe [:event-form/title])
-    (subscribe [:event-form/description])
     (subscribe [:event-form/happening-at-date])
     (subscribe [:event-form/happening-at-time])])
- (fn [[title description happening-at-date {:keys [hour]}]]
-   (and (every? not-empty [title
-                           description])
+ (fn [[title happening-at-date {:keys [hour]}]]
+   (and (every? not-empty [title])
         (not (nil? happening-at-date))
         (> hour 0))))

@@ -180,6 +180,9 @@
                                         hour-str
                                         minute-str
                                         new-time-of-day]))}]
+       [:p.info
+        "after you're done, make sure to rsvp to your"
+        " event."]
        (if error
          [:p.error error])
        [:button.done {:type "button"
@@ -289,27 +292,40 @@
 
 (defn upcoming-event [event detail?]
   (fn [event detail?]
-    [:li.event
-     (cond
-       detail?
-       [event-detail
-        event
-        #(>evt [:set-upcoming-event-detail nil])]
-       :else
-       [event-snippet
-        event
-        #(>evt
-          [:set-upcoming-event-detail
-           (:event-id event)])])
-     (if (:rsvped? event)
-       [:div.event-tag.rsvped check-icon]
+    (let [rsvping? (<sub [:upcoming-events/rsvping?])
+          max-occupancy (-> event
+                            :host
+                            :max-occupancy)
+          num-participants (-> event
+                               :participants
+                               count)
+          max-occupancy-reached? (>= num-participants
+                                     max-occupancy)
+          participant-str
+          (str " (" num-participants "/" max-occupancy ")")]
+      [:li.event
+       (cond
+         detail?
+         [event-detail
+          event
+          #(>evt [:set-upcoming-event-detail nil])]
+         :else
+         [event-snippet
+          event
+          #(>evt
+            [:set-upcoming-event-detail
+             (:event-id event)])])
+       (if (:rsvped? event)
+         [:div.event-tag.rsvped check-icon
+          participant-str]
 
-       [:button.event-tag.rsvp
-        {:on-click #(>evt [:rsvp (:event-id event)])
-         :disabled (<sub [:upcoming-events/rsvping?])}
-        (if (:your-house? event)
-          house-icon)
-        "RSVP"])]))
+         [:button.event-tag.rsvp
+          {:on-click #(>evt [:rsvp (:event-id event)])
+           :disabled (or rsvping?
+                         max-occupancy-reached?)}
+          (if (:your-house? event)
+            house-icon)
+          "RSVP" participant-str])])))
 
 (defn upcoming-events []
   (fn []
