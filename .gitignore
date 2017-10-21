@@ -35,6 +35,10 @@ client/resources/public/css/main.css
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
+# Terraform
+*.tfvars
+*.tfstate
+
 ## Emacs gitignore
 .elc
 auto-save-list
