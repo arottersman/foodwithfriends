@@ -38,6 +38,8 @@ client/resources/public/css/main.css
 # Terraform
 *.tfvars
 *.tfstate
+*.tfplan
+.terraform/
 
 ## Emacs gitignore
 .elc

@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${FWF_DEBUG}" ]]; then
+    set -x
+fi
+
+set -u
+
+DIR="$(dirname "$0")"
+
+function usage() {
+    echo -n \
+"Usage: $(basename "$0") COMMAND OPTION[S]
+Execute Terraform subcommands with remote state management.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        TERRAFORM_DIR="${DIR}/../deployment/terraform"
+        echo
+        echo "Attempting to deploy application version [${GIT_COMMIT}]..."
+        echo "-----------------------------------------------------"
+        echo
+
+        if [[ -n "${FWF_SETTINGS_BUCKET}" ]] && \
+           [[ -n "${FWF_SITE_BUCKET}" ]]; then
+            pushd "${TERRAFORM_DIR}"
+
+            aws s3 cp "s3://${FWF_SETTINGS_BUCKET}/terraform/terraform.tfvars" "${FWF_SETTINGS_BUCKET}.tfvars"
+
+            case "${1}" in
+                plan)
+                    rm -rf .terraform terraform.tfstate*
+                    terraform init \
+                              -backend-config="bucket=${FWF_SETTINGS_BUCKET}" \
+                              -backend-config="key=terraform/state"
+                    terraform plan \
+                              -var-file="${FWF_SETTINGS_BUCKET}.tfvars" \
+                              -var="image_version=\"${GIT_COMMIT}\"" \
+                              -out="${FWF_SETTINGS_BUCKET}.tfplan"
+                    aws s3 sync --dryrun --delete ../../client/resources/public \
+                              "s3://${FWF_SITE_BUCKET}"
+                    ;;
+                apply)
+                    terraform apply "${FWF_SETTINGS_BUCKET}.tfplan"
+                    aws s3 sync --delete ../../client/resources/public "s3://${FWF_SITE_BUCKET}"
+
+                    ;;
+                *)
+                    echo "ERROR: I don't have support for that Terraform subcommand!"
+                    exit 1
+                    ;;
+            esac
+
+            popd
+        else
+            echo "ERROR: No FWF_SETTINGS_BUCKET/FWF_SITE_BUCKET variable defined."
+            exit 1
+        fi
+    fi
+fi

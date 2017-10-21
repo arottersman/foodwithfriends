@@ -26,3 +26,16 @@ services:
                 /usr/src/functions/apis/validators.go \
                 /usr/src/functions/apis/email.go \
                 /usr/src/functions/apis/auth.go"
+  terraform:
+    image: quay.io/azavea/terraform:0.10.4
+    volumes:
+      - ./:/usr/local/src
+      - $HOME/.aws:/root/.aws:ro
+    environment:
+      - AWS_PROFILE=fwf
+      - GIT_COMMIT=${GIT_COMMIT:-latest}
+      - FWF_DEBUG=1
+      - FWF_SETTINGS_BUCKET=foodwithfriends-staging-config-us-east-1
+      - FWF_SITE_BUCKET=food-with-friends-site-us-east-1
+    working_dir: /usr/local/src
+    entrypoint: bash
