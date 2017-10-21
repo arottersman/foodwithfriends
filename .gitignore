@@ -1,6 +1,7 @@
 ## Envfiles
 *.db.env
 *.service.env
+*env.json
 
 ## Leinigen
 pom.xml
@@ -16,6 +17,7 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 .nrepl-port
+client/resources/public/css/main.css
 
 ## Golang
 # Binaries for programs and plugins
@@ -38,6 +40,9 @@ pom.xml.asc
 auto-save-list
 tramp
 .\#*
+
+## vim
+#*.swp
 
 # projectiles files
 .projectile
