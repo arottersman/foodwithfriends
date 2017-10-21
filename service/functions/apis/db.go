@@ -13,14 +13,15 @@ import (
 )
 
 func Connect() (*sql.DB, error) {
-    user := os.Getenv("PG_USER")
-    password := os.Getenv("PG_PASSWORD")
-    dbname := os.Getenv("PG_DBNAME")
-    connectionString := fmt.Sprintf(
-    "user=%s dbname=%s password=%s host=db sslmode=disable",
-    user, dbname, password)
+	user := os.Getenv("PG_USER")
+	password := os.Getenv("PG_PASSWORD")
+	dbname := os.Getenv("PG_DBNAME")
+	host := os.Getenv("PG_HOST")
+	connectionString := fmt.Sprintf(
+		"user=%s dbname=%s password=%s host=%s sslmode=disable",
+		user, dbname, password, host)
 
-    return sql.Open("postgres", connectionString)
+	return sql.Open("postgres", connectionString)
 }
 
 func CreateUser(db *sql.DB, user User) (int64, error) {
