@@ -6,6 +6,7 @@
             [reagent.core :as reagent]
             [reagent.ratom]
             [cljs-time.format]
+            [cljs-time.periodic]
             [clojure.string]
             [fwf.api-helpers :as api-helpers]
             [fwf.utils :refer [>evt <sub]]))
