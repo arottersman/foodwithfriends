@@ -41,8 +41,10 @@ func SendEmailsToLeastRecentHosts(db *sql.DB, numHosts int) (error) {
 		"To: " + recipientsString + "\r\n" +
 		"Subject: Your turn to host! \r\n" +
 		"\r\n" +
-		"Please visit the app/#create-event " +
-		"to create your event. \r\n")
+		"Please visit https://d6ye2sqzk9ylp.cloudfront.net/#create-event " +
+		"to create your event. Only one of your house need create one. " +
+		"Make sure to rsvp to the event yourself when you're done. " +
+		"Thanks <3 \r\n")
 	err = smtp.SendMail("smtp.gmail.com:587", auth, fwfEmail, recipients, msg)
 
 	if err != nil {
