@@ -33,7 +33,6 @@
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src" "cljs_src"]
-
                 ;; The presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client
                 ;; into your build
@@ -60,9 +59,15 @@
                {:id "min"
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/client.js"
+                           :asset-path "js/compiled/out"
                            :main fwf.core
                            :optimizations :advanced
-                           :pretty-print false}}]}
+                           :pretty-print false
+                           :closure-defines {fwf.constants/client-host
+                                             "https://d6ye2sqzk9ylp.cloudfront.net"
+                                             fwf.constants/api-url
+                                            "https://76nkpl2cqe.execute-api.us-east-1.amazonaws.com/beta"
+                                             goog.DEBUG false}}}]}
 
   :figwheel {:http-server-root "public" ;; default and assumes "resources"
              :server-port 3449 ;; default

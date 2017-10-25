@@ -1,8 +1,9 @@
 (ns fwf.constants
   (:require [clojure.string :as str]))
 
-;; TODO set for env
-(def client-host "http://localhost:3449")
+(goog-define client-host "http://localhost:3449")
+
+(goog-define api-url "http://localhost:8080")
 
 (def access-token-ls-key "access-token")
 

@@ -1,13 +1,11 @@
 (ns fwf.api-helpers
   (:require [ajax.core :as ajax]
-            [cljs-time.format]))
-
-(def api-url "http://localhost:8080")
+            [cljs-time.format]
+            [fwf.constants :refer [api-url]]))
 
 (defn auth-header [access-token]
   {"Authorization"
    (str "Bearer " access-token)})
-
 
 (def server-response-date-formatter (cljs-time.format/formatter "YYYY-MM-dd'T'HH:mm:ss'Z'"))
 (def server-request-date-formatter (cljs-time.format/formatter "YYYY-MM-dd'T'HH:mm:ss+00:00"))

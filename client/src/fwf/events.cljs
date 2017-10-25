@@ -15,6 +15,7 @@
    [cljs-time.format]
    [clojure.string :as str]
    [fwf.constants :refer [access-token-ls-key
+                          api-url
                           profile-ls-key
                           auth0-client-id
                           auth0-domain
@@ -23,8 +24,7 @@
                           auth0-state]]
    [fwf.utils :refer [parse-id-token
                       navigate-to!]]
-   [fwf.api-helpers :refer [api-url
-                            auth-header
+   [fwf.api-helpers :refer [auth-header
                             server-request-date-formatter
                             parse-user
                             parse-host
