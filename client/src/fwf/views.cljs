@@ -279,7 +279,13 @@
        [:p.list-label "Who's house is this?"]
        [host-user-list host-users]
        [:p.list-label "Who's going?"]
-       [participant-list  participants event]])))
+       [participant-list  participants event]
+       [:div.bottom-row
+        [(if (:rsvped? event)
+           :a.email-chain.-rsvped
+           :a.email-chain)
+         {:href (str "mailto:" (:email-chain event))}
+         "Email Everyone"]]])))
 
 (defn event-snippet [event on-click]
   (fn [event]

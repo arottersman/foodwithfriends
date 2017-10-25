@@ -45,7 +45,10 @@
                (str "https://google.com/maps/place/"
                     (clojure.string/replace
                      address-str
-                     " " "+"))))))
+                     " " "+")))
+        (assoc :email-chain (clojure.string/join
+                             ","
+                             (map :email (:participants event)))))))
 
 
 ;; -- Extractors --------------------

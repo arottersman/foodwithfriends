@@ -187,6 +187,7 @@
      :max-width (px 200)}]
    [(sel/> :section.auth :.login)
     {:font-size h3-font-size
+     :color "white"
      :font-family "monospace"
      :margin "auto"
      :cursor "pointer"
@@ -525,6 +526,7 @@
       [:button.event-snippet
        :.event-detail {:text-align "left"
                        :flex-grow 1
+                       :width (pc 100)
                        :color primary
                        :position "relative"
                        :background white
@@ -557,6 +559,16 @@
        [:.list-label {:font-weight 600
                       :margin-top (em 0.75)}]
        [:ul.people {:padding-left 0}]
+       [:div.bottom-row {:display "flex"
+                         :flex "0 0 100%"}]
+       [:a.email-chain (assoc basic-button
+                              :padding (em 0.3)
+                              :text-decoration "none"
+                              :text-align "center"
+                              :margin-right "auto"
+                              :margin-left "auto"
+                              :line-height (px 30))]
+       [:a.email-chain.-rsvped {:background tea-green}]
        [(sel/> :ul.people :li.person) {:padding-left (em 0.5)
                                        :color secondary
                                        :display "block"
