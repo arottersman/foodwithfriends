@@ -25,7 +25,7 @@
    auth0-domain "/authorize?"
    "response_type=code&"
    "state=" auth0-state "&"
-   "scope=" (js/encodeURIComponent "openid profile email") "&"
+   "scope=" (js/encodeURIComponent "openid sub name email") "&"
    "redirect_uri=" (js/encodeURIComponent
                     auth0-redirect-uri) "&"
    "client_id=" auth0-client-id "&"
