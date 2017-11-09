@@ -419,9 +419,9 @@
                      last-day
                      (cljs-time.core/day-of-week
                       (last all))
-                     start-padding (repeat (- first-day 1)
+                     start-padding (repeat (- first-day 0)
                                            :not-in-month)
-                     end-padding (repeat (- 7 last-day)
+                     end-padding (repeat (- 6 last-day)
                                          :not-in-month)]
                  (partition
                   7
