@@ -56,6 +56,7 @@
                                            ])))
 (spec/def ::user-form (spec/keys :req
                                  [::dietary-restrictions
+                                  ::name
                                   ::polling?
                                   ::error-response]))
 

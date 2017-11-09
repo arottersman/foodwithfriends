@@ -78,12 +78,9 @@
    (-> db :auth0 :polling?)))
 
 (reg-sub
- :user-form/name
+ :user-form/user-input-name
  (fn [db _]
-   (db :user-form :name)))
-(reg-sub :user-form/email
- (fn [db _]
-   (db :user-form :email)))
+   (-> db :user-form :name)))
 
 (reg-sub
  :user-form/dietary-restrictions
@@ -320,6 +317,17 @@
    [(subscribe [:user-form/dietary-restrictions])])
  (fn [[user-form/dietary-restrictions] _]
    (conj dietary-restrictions "")))
+
+(reg-sub
+ :user-form/name
+ (fn [_ _]
+   [(subscribe [:auth0/profile])
+    (subscribe [:user-form/user-input-name])])
+ (fn [[auth0/profile user-form/user-input-name] _]
+   (println profile)
+   (if (:name profile)
+     (:name profile)
+     user-input-name)))
 
 (reg-sub
  :user-form/error-string

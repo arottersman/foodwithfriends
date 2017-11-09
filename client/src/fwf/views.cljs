@@ -451,8 +451,11 @@
 
        [:form.user-form
         [:h3.title "create your account"]
-        [:label "Name"]
-        [:p.prefilled-input (:name profile)]
+        [:label "Name"
+          [:input {:value (<sub [:user-form/name])
+                   :on-change #(>evt [:user-form/update-name
+                                      (-> % .-target .-value)])
+                   }]]
         [:label "Email"]
         [:p.prefilled-input (:email profile)]
         [:label "Dietary Restrictions"

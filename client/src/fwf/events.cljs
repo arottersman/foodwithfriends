@@ -111,12 +111,19 @@
    (assoc-in db [:the-user :user :user-id] user-id)))
 
 (reg-event-db
+ :user-form/update-name
+ [check-spec-interceptor
+  trim-v
+  (path :user-form :name)]
+ (fn [_ [new-value]]
+   new-value))
+
+(reg-event-db
  :user-form/update-dietary-restrictions
  [check-spec-interceptor
   trim-v
   (path :user-form :dietary-restrictions)]
  (fn [restrictions [idx new-value]]
-   (println restrictions)
    (filterv not-empty (assoc restrictions idx new-value))))
 
 (reg-event-db
@@ -467,9 +474,17 @@
                  :format           (ajax/json-request-format)
                  :keywords?        true
                  :params           {:name
-                                    (-> db
-                                        :auth0
-                                        :profile :name)
+                                    (let
+                                        [profile-name
+                                         (-> db
+                                             :auth0
+                                             :profile
+                                             :name)]
+                                      (if profile-name
+                                        profile-name
+                                        (-> db
+                                            :user-form
+                                            :name)))
                                     :auth0Id
                                     (-> db
                                         :auth0

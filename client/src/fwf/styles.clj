@@ -364,7 +364,7 @@
     {:display "none"}]
 
    [(sel/> :.clearable-input :input)
-    (sel/> :.form.user-form :label :input)
+    (sel/> :form.user-form :label :input)
     (assoc basic-input
            :width "calc(100% - 1.4em)")]
 
