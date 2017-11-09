@@ -4,5 +4,9 @@
   "memory": 128,
   "timeout": 5,
   "role": "arn:aws:iam::731665330081:role/food_with_friends_service_lambda_function",
-  "environment": {}
+  "environment": {},
+  "vpc": {
+        "securityGroups": ["sg-65adff17"],
+        "subnets":  ["subnet-aa40a085", "subnet-251f9e41"]
+  }
 }
