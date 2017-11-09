@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${FWF_DEBUG}" ]]; then
+    set -x
+fi
+
+cd client
+
+echo cleaning build
+rm -rf resources/public/js
+
+lein garden once
+lein cljsbuild once min

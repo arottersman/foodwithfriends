@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${FWF_DEBUG}" ]]; then
+    set -x
+fi
+
+set -u
+
+docker-compose build && docker-compose up service
+

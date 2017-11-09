@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${FWF_DEBUG}" ]]; then
+    set -x
+fi
+
+set -u
+
+function usage() {
+    echo -n "Usage: $(basename "${0}") [OPTION]
+Login to a running Docker container's shell.
+Options:
+    service   API container
+    db        Postgres container
+    help      Display this help text
+"
+}
+
+case $1 in
+    service) docker-compose run service /bin/bash; exit 1 ;;
+    db) docker exec -it foodwithfriends_db_1 psql --user fwf; exit 1 ;;
+    help|*)           usage; exit 1 ;;
+esac
+
