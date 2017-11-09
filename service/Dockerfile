@@ -2,7 +2,7 @@ FROM golang:1.7.6
 
 EXPOSE 8080 8080
 
-RUN if $DEPLOY; then curl https://raw.githubusercontent.com/apex/apex/master/install.sh; fi
+RUN if $DEPLOY; then curl https://raw.githubusercontent.com/apex/apex/master/install.sh | sh; fi
 
 RUN go get github.com/apex/go-apex
 RUN go get github.com/pressly/goose/cmd/goose
