@@ -3,6 +3,9 @@
 *.service.env
 *env.json
 
+## Deployment
+deployment/
+
 ## Leinigen
 pom.xml
 pom.xml.asc
