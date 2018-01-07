@@ -1,7 +1,8 @@
 (ns fwf.api-helpers
   (:require [ajax.core :as ajax]
             [cljs-time.format]
-            [fwf.constants :refer [api-url]]))
+            [fwf.constants :refer [api-url]]
+            [fwf.db :as db]))
 
 (defn auth-header [access-token]
   {"Authorization"
@@ -19,13 +20,13 @@
                           assignedDish
                           auth0Id
                           hostId]}]
-  {:name name
-   :user-id userId
-   :email email
-   :dietary-restrictions dietaryRestrictions
-   :assigned-dish assignedDish
-   :auth0-id auth0Id
-   :host-id hostId})
+  {::db/name name
+   ::db/user-id userId
+   ::db/email email
+   ::db/dietary-restrictions dietaryRestrictions
+   ::db/assigned-dish assignedDish
+   ::db/auth0-id auth0Id
+   ::db/host-id hostId})
 
 (defn parse-host [{:keys [address
                           city
@@ -34,13 +35,13 @@
                           maxOccupancy
                           hostId
                           users]}]
-  {:address address
-   :city city
-   :state state
-   :zipcode zipcode
-   :max-occupancy maxOccupancy
-   :host-id hostId
-   :users (map parse-user users)})
+  {::db/address address
+   ::db/city city
+   ::db/state state
+   ::db/zipcode zipcode
+   ::db/max-occupancy maxOccupancy
+   ::db/host-id hostId
+   ::db/users (map parse-user users)})
 
 
 (defn parse-event [{:keys [eventId
@@ -49,16 +50,18 @@
                            participants
                            host
                            happeningAt]}]
-  {:event-id eventId
-   :title title
-   :description description
-   :participants (map parse-user participants)
-   :host (parse-host host)
-   :happening-at happeningAt})
+  {::db/event-id eventId
+   ::db/title title
+   ::db/description description
+   ::db/participants (map parse-user participants)
+   ::db/host (parse-host host)
+   ::db/happening-at happeningAt})
 
 (defn parse-assigned-dish [event-response user-id]
-  (let [{:keys [participants]} (parse-event event-response)]
-    (:assigned-dish (first (filter #(= user-id (:user-id %)) participants)))))
+  (let [{:keys [fwf.db/participants]}
+        (parse-event event-response)
+        user? #(= user-id (::db/user-id %))]
+    (::db/assigned-dish (some user? participants))))
 
 ;; -- Fetches -----------------------
 
@@ -93,4 +96,3 @@
                                      :error-handler on-failure
                                      :response-format :json
                                      :keywords? true}))
-

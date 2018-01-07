@@ -1,13 +1,22 @@
 (ns fwf.core
   (:import goog.History)
   (:require [reagent.core :as reagent :refer [atom]]
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
+            [re-frame.core :refer [dispatch-sync]]
             [secretary.core :as secretary :refer-macros [defroute]]
             [goog.events]
             [goog.history.EventType]
+            [fwf.specs]
             [fwf.db]
             [fwf.events]
+            [fwf.event-list.events]
+            [fwf.event-form.events]
+            [fwf.admin.events]
+            [fwf.user-form.events]
             [fwf.subs]
+            [fwf.event-list.subs]
+            [fwf.event-form.subs]
+            [fwf.admin.subs]
+            [fwf.user-form.subs]
             [fwf.views]
             [fwf.utils :refer [>evt
                                <sub
@@ -59,4 +68,3 @@
   (dispatch-sync [:initialize-db])
   (reagent/render [fwf.views/app]
                   (.getElementById js/document "app")))
-
