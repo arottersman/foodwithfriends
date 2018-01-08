@@ -22,7 +22,8 @@
   (= auth0-state (href->param-val href "state")))
 
 (defn parse-id-token [id-token]
-  (b64/decodeString (second (str/split id-token #"\."))))
+   (b64/decodeString
+    (second (str/split id-token #"\."))))
 
 (defn navigate-to!
   [path]
