@@ -9,30 +9,31 @@
             [clojure.string]
             [fwf.api-helpers :as api-helpers]
             [fwf.utils :refer [>evt <sub]]
-            [fwf.db :as db]))
+            [fwf.db :as db]
+            [devtools.defaults :as d]))
 
-(defn- parse-date
-  [date]
+(defn- parse-datetime
+  [datetime format]
   (cond
-    (nil? date)
+    (nil? datetime)
     nil
     :else
     (cljs-time.format/unparse-local
      (cljs-time.format/formatter-local
-      "E, M/d hh:mma")
+      format)
      (cljs-time.format/parse
       api-helpers/server-response-date-formatter
-      date))))
+      datetime))))
 
-(defn- gmaps-url [address]
+(defn- parse-date [date]
+  (parse-datetime date "E, M/d/Y"))
+
+(defn- parse-time [date]
+  (parse-datetime date "h:mma"))
+
+(defn- gmaps-url [address city state zipcode]
   (str "https://google.com/maps/place/"
-       (clojure.string/replace address
-        " " "+")))
-(defn- str-address [{:keys [fwf.db/address
-                            fwf.db/city
-                            fwf.db/state
-                            fwf.db/zipcode]}]
-  (str address " " city ", " state " " zipcode))
+       address "+" city ",+" state "+" zipcode))
 (defn- rsvped? [user-id {:keys [fwf.db/participants]}]
   (some #{user-id} (map ::db/user-id participants)))
 (defn- agg-dietary-restrictions [participants]
@@ -41,24 +42,61 @@
   (str "(" (count participants) "/" max-occupancy ")"))
 (defn- email-chain [participants]
   (clojure.string/join "," (map ::db/email participants)))
+(defn- first-name [name]
+  (first (clojure.string/split name #" ")))
+(defn- str-host-by [host-users]
+  (clojure.string/join
+   ", "
+   (map (comp first-name ::db/name) host-users)))
 
 (defn prettify-event [event user-id user-host-id]
-  (let [host-id (-> event ::db/host ::db/host-id)
-        address-str (str-address (::db/host event))
+  (let [host (::db/host event)
+        {:keys [fwf.db/address
+                fwf.db/city
+                fwf.db/state
+                fwf.db/zipcode
+                fwf.db/host-id
+                fwf.db/max-occupancy]}
+        host
         participants (::db/participants event)
-        max-occupancy (-> event ::db/host ::db/max-occupancy)]
+        happening-at (::db/happening-at event)]
     (-> event
         (assoc ::db/rsvped? (rsvped? user-id event))
         (assoc ::db/your-house? (= host-id user-host-id))
-        (assoc ::db/happening-at (parse-date (::db/happening-at event)))
-        (assoc ::db/address-str address-str)
-        (assoc ::db/google-maps-url (gmaps-url address-str))
+        (assoc ::db/happening-at-date (parse-date happening-at))
+        (assoc ::db/happening-at-time (parse-time happening-at))
+        (assoc ::db/google-maps-url (gmaps-url address
+                                               city
+                                               state
+                                               zipcode))
+        (assoc ::db/address address)
+        (assoc ::db/state state)
+        (assoc ::db/city city)
+        (assoc ::db/zipcode zipcode)
         (assoc ::db/agg-dietary-restrictions (agg-dietary-restrictions participants))
         (assoc ::db/email-chain (email-chain participants))
         (assoc ::db/participant-str (participant-str participants max-occupancy))
+        (assoc ::db/hosted-by-str (str-host-by (::db/users host)))
      )))
 
+(defn- sort-prettified-events [events]
+  (sort-by (juxt ::db/your-house? ::db/rsvped?) true? events))
+
 ;; --- subscriptions
+
+(reg-sub
+ :upcoming-events/polling?
+ (fn [db _]
+   (-> db
+       ::db/upcoming-events
+       ::db/polling?)))
+
+(reg-sub
+ :user-events/polling?
+ (fn [db _]
+   (-> db
+       ::db/user-events
+       ::db/polling?)))
 
 (reg-sub
  :upcoming-events/error
@@ -153,4 +191,4 @@
     (subscribe [:user])])
 
  (fn [[events {:keys [fwf.db/user-id fwf.db/host-id]}]]
-   (map #(prettify-event % user-id host-id) events)))
+   (sort-prettified-events (map #(prettify-event % user-id host-id) events))))

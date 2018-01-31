@@ -10,6 +10,23 @@
                      add-host-to-user-page]]
             [fwf.admin.views :refer [send-invites-page]]))
 
+(defn header [text]
+  (fn [text]
+    [:div.header
+     [:div.stripes
+      [:div.stripe]
+      [:div.stripe.-middle]
+      [:div.stripe]]
+     [:div.hexagon
+      [:span text]]]))
+
+(def page->html
+  {:create-user [user-form]
+   :add-host-to-user [add-host-to-user-page]
+   :events [events-page]
+   :create-event [event-form]
+   :send-invites [send-invites-page]})
+
 (defn app []
   (let [page (<sub [:page])
         user-detail (<sub [:user-detail])
@@ -19,6 +36,7 @@
         {:keys [fwf.db/sub]} (<sub [:auth0/profile])
         user (<sub [:user]) user-assigned-dish (<sub [:user-assigned-dish])]
     [:main.app
+     [header "FORKFUL"]
      (cond
        auth0-polling?
        [:p.polling "Getting your profile..."]
@@ -32,11 +50,5 @@
         [:a.login {:href auth0-authorize-url}
          "New phone, who this?"]]
        :else
-         (cond ;; main page content
-           (or (= user :no-account)
-               (= page :create-user)) [user-form]
-           (= page :add-host-to-user) [add-host-to-user-page]
-           (= page :events) [events-page]
-           (= page :create-event) [event-form]
-           (= page :send-invites) [send-invites-page]
-           :else [:div "Page not found"]))]))
+         (or (page->html page)
+             [:div "Page not found"]))]))
