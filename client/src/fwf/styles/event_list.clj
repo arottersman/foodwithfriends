@@ -52,7 +52,18 @@
     (small-screen
      [:& {:margin 0
           :width "auto"}])]
-
+   [:.center-container
+    {:display "flex"
+     :text-align "center"
+     :padding "0 1rem"
+     :margin-top (rem 4)
+     :flex-direction "column"
+     :align-items "center"
+     :justify-content "flex-start"}
+    [:.no-events
+     :.error
+     {:font-size h4-font-size
+      :margin-top (rem 0.7)}]]
    ;; event list item
    [:ul.events {:padding 0
                 :flex "1 0 auto"

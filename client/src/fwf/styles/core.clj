@@ -6,7 +6,7 @@
    [garden.selectors :as sel]
 
    [garden.color :as color]
-   [garden.stylesheet :refer [at-media]]
+   [garden.stylesheet :refer [at-keyframes]]
    [fwf.styles.header :refer [header]]
    [fwf.styles.event-list :refer [event-list]]))
 
@@ -412,20 +412,28 @@
   [:.icon {:width (px 25)
            :height (px 25)
            :margin-right "0.7rem"}]
-  [:.error
-   :.polling
-   {:margin "auto"
-    :padding "0.5em 2em"
-    :background white
-    :text-align "center"
-    :max-width (px 250)
-    :border "2px solid"
-    :border-radius (px 50)
-    :font-weight 800}]
-  [:.error
-   {:background uh-oh-red
-    :margin-top (em 0.2)
-    :color "white !important"}]
+  [:.icon.big
+   {:width (px 100)
+    :height (px 100)}]
+  [:.icon.medium
+   {:width (px 50)
+    :height (px 50)}]
+  (at-keyframes "spinnerRotate"
+                [:from {:transform "rotate(0deg)"}]
+                [:to {:transform "rotate(360deg)"}]) 
+  [:.spin
+   {:-webkit-animation-name "spinnerRotate"
+    :-webkit-animation-duration "4s"
+    :-webkit-animation-iteration-count "infinite"
+    :-webkit-animation-timing-function "linear"
+    :-moz-animation-name "spinnerRotate"
+    :-moz-animation-duration "4s"
+    :-moz-animation-iteration-count "infinite"
+    :-moz-animation-timing-function "linear"
+    :-ms-animation-name "spinnerRotate"
+    :-ms-animation-duration "4s"
+    :-ms-animation-iteration-count "infinite"
+    :-ms-animation-timing-function "linear"}]
   [:.hidden
    {:display "none"}]
   typography

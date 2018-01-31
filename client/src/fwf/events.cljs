@@ -101,6 +101,7 @@
      (-> db
          (assoc-in [::db/the-user ::db/user] user)
          (assoc-in [::db/the-user ::db/stale?] false)
+         (assoc-in [::db/the-user ::db/polling?] false)
          (cond-> (or (nil? host-id)
                      (= 0 host-id))
            (assoc ::db/page :add-host-to-user))))))
@@ -113,6 +114,7 @@
    (let [status (:status error-response)]
      (-> db
          (assoc-in [::db/the-user ::db/stale?] false)
+         (assoc-in [::db/the-user ::db/polling?] false)
          (cond-> (= status 404)
            (->
             (assoc ::db/page :create-user)
@@ -125,6 +127,12 @@
            (-> (assoc ::db/page ::db/login)
                (assoc-in [:auth0 :access-token] "")
                (assoc-in [:auth0 :profile] {})))))))
+
+(reg-event-db
+ :set-user-polling
+ fwf-interceptors
+ (fn [db _]
+   (assoc-in db [::db/the-user ::db/polling?] true)))
 
 ;; auth0 api
 (reg-event-db

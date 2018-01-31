@@ -101,7 +101,7 @@
 (reg-sub
  :upcoming-events/error
  (fn [db _]
-   (-> db ::db/upcoming-events ::db/error-response :status-message)))
+   (-> db ::db/upcoming-events ::db/error-response :status-text)))
 
 (reg-sub
  :upcoming-events/rsvping?
@@ -111,7 +111,7 @@
 (reg-sub
  :user-events/error
  (fn [db _]
-   (-> db ::db/user-events ::db/error-response :status-message)))
+   (-> db ::db/user-events ::db/error-response :status-text)))
 
 (reg-sub
  :upcoming-events/detail-id
@@ -152,10 +152,12 @@
       (let [stale? (<sub [:upcoming-events/stale?])
             access-token (<sub [:auth0/access-token])]
         (if (and stale? access-token)
-          (api-helpers/fetch-upcoming-events!
-           {:access-token access-token
-            :on-success #(>evt [:set-upcoming-events %])
-            :on-failure #(>evt [:set-upcoming-events-error %])})))
+          (do
+            (>evt [:set-upcoming-events-polling])
+            (api-helpers/fetch-upcoming-events!
+             {:access-token access-token
+              :on-success #(>evt [:set-upcoming-events %])
+              :on-failure #(>evt [:set-upcoming-events-error %])}))))
       (get-in @app-db [::db/upcoming-events ::db/events])))))
 
 (reg-sub-raw
@@ -166,12 +168,15 @@
       (let [user-id (:user-id (<sub [:user]))
             stale? (<sub [:user-events/stale?])
             access-token (<sub [:auth0/access-token])]
-        (if (and stale? user-id access-token)
+        (cond
+          (and stale? user-id access-token)
+          (do
+            (>evt [:set-user-events-polling])
             (api-helpers/fetch-user-events!
              {:user-id user-id
               :access-token access-token
               :on-success #(>evt [:set-user-events %])
-              :on-failure #(>evt [:set-user-events-error %])})))
+              :on-failure #(>evt [:set-user-events-error %])}))))
       (get-in @app-db [::db/user-events ::db/events])))))
 
 ;;--- subscription handlers

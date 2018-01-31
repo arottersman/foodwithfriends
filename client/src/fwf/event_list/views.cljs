@@ -7,10 +7,13 @@
 (def close-x [:div {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
 (def down-chevron [:img.icon.down-chevron {:src "img/004-down-chevron.svg"}])
 (def house [:img.icon {:src "img/005-house.svg"}])
-(def spinning-plate [:img.icon.spin {:src "img/009-food.svg"}])
+(def spinning-plate [:img.icon.big.spin {:src "img/009-food.svg"}])
 (def email [:img.icon {:src "img/003-letter.svg"}])
 (def copy-icon [:img.icon {:src "img/002-copy.svg"}])
 (def map-icon [:img.icon {:src "img/001-street-map.svg"}])
+(def appetizer-big [:img.icon.medium {:src "img/008-food-1.svg"}])
+(def side-big [:img.icon.medium {:src "img/010-salad.svg"}])
+(def main-big [:img.icon.medium {:src "img/007-turkey.svg"}])
 
 (def dish->icon
   {"main" [:img.icon {:src "img/007-turkey.svg"}]
@@ -198,11 +201,17 @@
           error (<sub [:upcoming-events/error])]
       (cond
         polling?
-        [:p.polling "polling"]
-        (empty? events)
-        [:p.no-events "No upcoming events"]
+        [:div.center-container
+         spinning-plate]
         error
-        [:p.error "Error getting the upcoming events"]
+        [:div.center-container
+         main-big
+         [:p.error "Uh-oh, something went wrong while we were trying to get the upcoming events!"]]
+        (empty? events)
+        [:div.center-container
+         appetizer-big
+         [:p.no-events
+          "Nobody has made an event yet. Check back soon, or bother your cohort to get on it!"]]
         :else
         [:ul.events
          (map (fn [event]
@@ -231,16 +240,22 @@
 (defn user-events []
   (fn []
     (let [polling? (<sub [:user-events/polling?])
-          events (<sub [:pretty-user-events])
-          detail-event-id (<sub [:user-events/detail-id])
-          error (<sub [:user-events/error])]
+          user-polling? (<sub [:user/polling?])
+          events (<sub [:pretty-user-events]) detail-event-id (<sub [:user-events/detail-id])
+          error (<sub [:user-events/error])
+          user-error (<sub [:user/error])]
       (cond
-        polling?
-        [:p.polling "polling"]
+        (or polling? user-polling?)
+        [:div.center-container
+         spinning-plate]
+        (or error user-error)
+        [:div.center-container
+         main-big
+         [:p.error "...something went wrong getting your past events. Guess you should just live in the present."]]
         (empty? events)
-        [:p.no-events "You don't have any events"]
-        error
-        [:p.error "Error getting your events"]
+        [:div.center-container
+         side-big
+         [:p.no-events "You don't have any past events. Anything you've RSVPed to, or hosted will show up here."]]
         :else
         [:ul.events
          (map (fn [event]

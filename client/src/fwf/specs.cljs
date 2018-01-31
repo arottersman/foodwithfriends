@@ -62,6 +62,7 @@
 (spec/def ::db/the-user
   (spec/keys :opt [::db/user
                    ::db/stale?
+                   ::db/polling?
                    ::db/error-response]))
 ;; User Form
 (spec/def ::db/user-form

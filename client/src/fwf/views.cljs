@@ -10,6 +10,8 @@
                      add-host-to-user-page]]
             [fwf.admin.views :refer [send-invites-page]]))
 
+(def spinning-plate [:img.icon.big.spin {:src "img/009-food.svg"}])
+
 (defn header [text]
   (fn [text]
     [:div.header
