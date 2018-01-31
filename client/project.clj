@@ -24,7 +24,7 @@
 
   :garden {
            :builds [{:source-paths ["src"]
-                     :stylesheet fwf.styles/style
+                     :stylesheet fwf.styles.core/style
                      :compiler {:output-to "resources/public/css/main.css"}}]
            }
 

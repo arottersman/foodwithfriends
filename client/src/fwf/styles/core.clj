@@ -1,45 +1,14 @@
-(ns fwf.styles
+(ns fwf.styles.core
+  (:use [fwf.styles.utils]
+        [fwf.styles.constants])
   (:require
    [garden.def :refer [defstyles]]
    [garden.selectors :as sel]
+
    [garden.color :as color]
-   [garden.stylesheet :refer [at-media]]))
-
-
-;; Type utils
-(defn em [num]
-  (str num "em"))
-(defn pc [num]
-  (str num "%"))
-(defn pt [num]
-  (str num "pt"))
-(defn px [num]
-  (str num "px"))
-
-(defn box-shadow-val [w x y z [r g b a]]
-   (str w " " x " " y " " z " rgba(" r "," g "," b "," a ")"))
-
-;; Breakpoints
-;; http://noprompt.github.io/clojurescript/2014/02/10/media-query-breakpoints-with-garden.html
-
-(defmacro defbreakpoint [name media-params]
-  `(defn ~name [& rules#]
-     (at-media ~media-params
-               [:& rules#])))
-
-(defbreakpoint small-screen
-  {:screen true
-   :min-width (px 320)
-   :max-width (px 480)})
-
-(defbreakpoint medium-screen
-  {:screen true
-   :min-width (px 481)
-   :max-width (px 1023)})
-
-(defbreakpoint large-screen
-  {:screen true
-   :min-width (px 1024)})
+   [garden.stylesheet :refer [at-media]]
+   [fwf.styles.header :refer [header]]
+   [fwf.styles.event-list :refer [event-list]]))
 
 ;; Colors
 (def primary "#3a3239")
@@ -50,15 +19,7 @@
 (def accent-light "#7694c3");;"#5e8eda")
 (def background "#fff8f4")
 (def light "#dfebec")
-(def white "#FFFFFF")
 (def tea-green "#5cce1a")
-
-;; Font Sizes
-
-(def h1-font-size (em 2)) ;; 2x body copy size = 32px
-(def h2-font-size (em 1.625))
-(def h3-font-size (em 1.375))
-(def h4-font-size (em 1.125))
 
 (def height-md (px 40))
 (def height-header (px 50))
@@ -66,7 +27,7 @@
 ;; from http://typecast.com/images/uploads/modernscale.css
 (def typography
   [[:body {:font-size (pc 100)
-           :font-color primary}]
+           :font-color black}]
 
    [:body
     :caption
@@ -85,7 +46,7 @@
     :h5
     :h6
     :p {:font-size-adjust 0.5
-        :font-family "sans-serif"}]
+        :font-family primary-font-family}]
    [:h1
     :h2
     :h3
@@ -143,7 +104,7 @@
    :padding (em 0.7)
    :border-radius (px 50)
    :margin-top (em 1)
-   :box-shadow (box-shadow-val
+   :box-shadow (box-shadow
                 (px 2)
                 (px 2)
                 (px 2)
@@ -157,10 +118,9 @@
 (def basic-input
   {:margin "0.5em 0"
    :padding (em 0.5)
-   :border-radius (px 5)
    :border 0
-   :background accent-light
-   :color white
+   :border-bottom "2px solid black"
+   :color black
    :width "calc(100% - 1em)"
    :font-size h4-font-size})
 
@@ -174,7 +134,7 @@
      :max-width (px 300)
      :height (px 120)
      :margin "auto"
-     :box-shadow (box-shadow-val (px 6)
+     :box-shadow (box-shadow (px 6)
                                  (px 6)
                                  (px 6)
                                  (px 3)
@@ -270,7 +230,7 @@
       :border 0
       :border-radius (px 5)
       :margin (px 1)
-      :box-shadow (box-shadow-val
+      :box-shadow (box-shadow
                    (px 1)
                    (px 1)
                    (px 1)
@@ -442,194 +402,16 @@
    [:.rsvp (assoc rsvp
                   :height (px 44))]])
 
-(def events-section
-  [[:section.events-section
-    {:color secondary
-     :display "flex"
-     :height (str "calc(100% - " height-header ")")
-     :flex-direction "column"}]
-
-   [:.event-tab-group
-    {:display "flex"
-     :flex-grow 1
-     :height (px 55)
-     :margin-left "auto"
-     :margin-right "auto"
-     :margin-top (em 1)
-     :margin-bottom 0}
-    (small-screen
-     [:& {:margin "1em 1em 0 1em"}])]
-
-   [(sel/> :.event-tab-group :label.event-tab)
-    {:background light
-     :margin-right (px 5)
-     :font-size h4-font-size
-     :text-transform "lowercase"
-     :font-variant "small-caps"
-     :line-height (px 20)
-     :font-weight 600
-     :padding (em 0.75)
-     :border-radius "5px 5px 0px 0px"
-     :cursor "pointer"}]
-
-   [(sel/+ :input.tab-radio :label.event-tab)
-    {:opacity 0.5}
-    [:&:hover
-     {:opacity 0.75}]]
-
-   [(sel/+ :input.tab-radio:checked :label.event-tab)
-    {:opacity 1
-     :font-weight 600
-     :z-index 100
-     :height (px 20)}]
-
-   [(sel/> :.event-tab-group :input.tab-radio)
-    {:display "none"}]
-
-   [(sel/> :section.events-section :.active-event-tab)
-    {:background light
-     :overflow "auto"
-     :display "flex"
-     :height (pc 100)
-     :padding (em 1)
-     :width (px 580)
-     :border-radius "0px 5px 5px 5px"
-     :margin "auto"}
-
-    (small-screen
-     [:& {:margin 0
-          :width "auto"}])
-
-    [:.no-events :.error {:margin "auto"
-                          :font-size h2-font-size
-                          :text-align "center"}]
-
-    [:ul.events {:padding 0
-                 :width (pc 100)}
-
-     [:li.event {:display "flex"
-                 :padding-bottom (em 1)}
-
-      (small-screen [:& {:flex-direction "column"}
-                     event-tag-under])
-      (medium-screen event-tag-right)
-      (large-screen event-tag-right)
-
-      [:button.event-snippet {:cursor "pointer"
-                              :width (pc 100)
-                              :position "relative"}
-       [:.expand {:position "absolute"
-                  :top (em 0.2)
-                  :right (em 0.5)
-                  :font-size h3-font-size
-                  :margin 0}]]
-      [:button.event-snippet
-       :.event-detail {:text-align "left"
-                       :flex-grow 1
-                       :width (pc 100)
-                       :color primary
-                       :position "relative"
-                       :background white
-                       :padding "0.75em 0.75em"
-                       :border-radius (px 5)
-                       :border "0px solid"
-                       :box-shadow (box-shadow-val
-                                    (px 2)
-                                    (px 2)
-                                    (px 2)
-                                    (px 2)
-                                    [0 0 0 0.2])
-                       :font-size h4-font-size}
-       [:button:&:hover :button:&:focus {:opacity 0.8}]
-       [:button.close {:position "absolute"
-                       :right (em 0.5)
-                       :cursor "pointer"
-                       :top (em 0.5)
-                       :border 0
-                       :font-size h4-font-size
-                       :color secondary
-                       :opacity 0.9
-                       :background "none"
-                       :font-weight 900}
-        [:&:hover :&:focus {:color primary
-                            :opacity 1}]]
-       [:h3 {:margin "0 0 0.25em 0"}]
-       [:p.description :.location :div.time :p.no-people
-        {:margin "0 0 0.5em 0"}]
-       [:.list-label {:font-weight 600
-                      :margin-top (em 0.75)}]
-       [:ul.people {:padding-left 0}]
-       [:div.bottom-row {:display "flex"
-                         :flex "0 0 100%"}]
-       [:a.email-chain (assoc basic-button
-                              :padding (em 0.3)
-                              :text-decoration "none"
-                              :text-align "center"
-                              :margin-right "auto"
-                              :margin-left "auto"
-                              :line-height (px 30))]
-       [:a.email-chain.-rsvped {:background tea-green}]
-       [(sel/> :ul.people :li.person) {:padding-left (em 0.5)
-                                       :color secondary
-                                       :display "block"
-                                       :margin-bottom (em 0.5)}
-        [:a.user {:cursor "pointer"}
-         [:&:hover :&:focus {:text-decoration "underline"
-                             :color accent}]]
-        [:span.accent {:color accent
-                       :margin-right (px 5)
-                       :font-weight 900}]]]]]]
-   ])
-
-(def site-header
-  [[:nav.site-nav
-    {:background-color accent
-     :display "flex"
-     :height height-header
-     :border 0
-     :box-shadow (box-shadow-val
-                  (px 0)
-                  (px 1)
-                  (px 4)
-                  (px 5)
-                  [0 0 0 0.2])
-     :flex "0 0 100%"}]
-   [(sel/> :nav.site-nav :.site-title)
-    {:font-family "monospace"
-     :margin "auto"
-     :color white
-     :text-transform "lowercase"}]
-   [(sel/> :nav.site-nav :.signout)
-    {:font-variant "small-caps"
-     :font-weight 600
-     :margin-right (em 0.5)
-     :margin-left "auto"
-     :line-height (px 20)
-     :text-transform "lowercase"
-     :font-size h4-font-size
-     :margin-top "auto"
-     :margin-bottom "auto"
-     :padding "0.5em 1.5em"
-     :color accent
-     :border "0px solid"
-     :border-radius (px 20)
-     :cursor "pointer"
-     :background white}
-    [:&:hover
-     :&:focus
-     {:opacity 0.8}]]
-   [(sel/> :nav.site-nav :.site-title)
-     {:margin-left (em 1)}]])
-
 (defstyles style
   [:html :body :#app :.app {:width (pc 100)
-                            :height (pc 100)
+                            :overflow "hidden"
                             :margin 0}]
-  [:.app {:display "flex"
-          :background-color background}]
+  [:.app {:background-color white}]
   [:section :.page {:width (pc 100)
                   :height (pc 100)}]
-  [:.icon {:margin-right (em 0.5)}]
+  [:.icon {:width (px 25)
+           :height (px 25)
+           :margin-right "0.7rem"}]
   [:.error
    :.polling
    {:margin "auto"
@@ -647,9 +429,9 @@
   [:.hidden
    {:display "none"}]
   typography
-  site-header
+  header
+  event-list
   auth-section
   user-form
-  events-section
   event-form
   modal)
