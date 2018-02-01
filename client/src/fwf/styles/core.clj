@@ -8,7 +8,8 @@
    [garden.color :as color]
    [garden.stylesheet :refer [at-keyframes]]
    [fwf.styles.header :refer [header]]
-   [fwf.styles.event-list :refer [event-list]]))
+   [fwf.styles.event-list :refer [event-list]]
+   [fwf.styles.modals :refer [modal]]))
 
 ;; Colors
 (def primary "#3a3239")
@@ -157,34 +158,6 @@
     [:&:hover
      :&:focus
      {:text-decoration "underline"}]]])
-
-(def modal [:.modal-background
-            {:background "rgba(0, 0, 0, 0.5)"
-             :display "flex"
-             :position "fixed"
-             :z-index 200
-             :width (pc 100)
-             :height (pc 100)}
-            [:.modal {:background white
-                      :margin "auto"
-                      :border-radius (px 5)
-                      :position "relative"
-                      :padding (em 3)}
-             (small-screen
-              [:& {:border-radius 0}])
-             [:button.close {:position "absolute"
-                             :top (em 0.5)
-                             :right (em 0.5)
-                             :border 0
-                             :background "none"
-                             :cursor "pointer"
-                             :font-size h4-font-size}]]
-            [:.user-detail :.assigned-dish
-             {:height "auto"
-              :width (px 250)}
-             [:h3.name {:margin "0 0 0.5em 0"}]
-             [:div.user-info
-              {:margin-top (em 0.7)}]]])
 
 
 (def event-form

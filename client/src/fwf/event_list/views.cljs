@@ -2,7 +2,8 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             [fwf.utils :refer [>evt <sub]]
-            [fwf.db :as db]))
+            [fwf.db :as db]
+            [devtools.defaults :as d]))
 
 (def close-x [:div {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
 (def down-chevron [:img.icon.down-chevron {:src "img/004-down-chevron.svg"}])
@@ -49,9 +50,9 @@
         [:button.close {:type "button"
                   :on-click #(>evt [:clear-assigned-dish-modal])}
          close-x]
-        [:h3 "Great"]
+        [:h3 "Great!"]
         (dish->icon assigned-dish)
-        [:span "You're assigned to bring a "
+        [:p.user-assigned-dish "You're assigned to bring: "
          [:strong assigned-dish]]]])))
 
 (defn user-detail-modal []
@@ -67,18 +68,18 @@
                               [:set-user-detail
                                nil])}
          close-x]
+
+        (dish->icon assigned-dish)
         [:h3.name name]
-        [:a email]
+        [:p.email email]
         (if (not-empty dietary-restrictions)
-            [:div.user-info
-             [:h5 "Dietary Restrictions:"]
-             [:p (clojure.string/join
-                  ", " dietary-restrictions)]])
+          [:p.user-dietary-rest
+           "Dietary restrictions: "(clojure.string/join
+                                    ", " dietary-restrictions)])
         (if assigned-dish
           [:div.user-info
-           [:label "Assigned Dish"]
-           (dish->icon assigned-dish)
-           [:p assigned-dish]])]])))
+           [:p.user-assigned-dish "Assigned to bring: "
+            [:strong assigned-dish]]])]])))
 
 
 (defn user-link [user]
@@ -128,7 +129,9 @@
        [:div.event-time happening-at-time]
        [:div.event-hosts "Hosted by " hosted-by-str]
        [:p.event-description title]
-       [:a.event-location {:href google-maps-url}
+       [:a.event-location {:href google-maps-url
+                           :rel "noopener noreferrer"
+                           :target "_blank"}
         map-icon
         [:div.event-address
          [:p.address-line address]
@@ -164,11 +167,13 @@
     (let [rsvped? (::db/rsvped? event)
           rsvping? (<sub [:upcoming-events/rsvping?])
           participant-str (::db/participant-str event)
+          event-id (::db/event-id event)
           button-txt (if rsvped?
                        "You're going!"
                        "RSVP")]
         [:button.rsvp
-         {:disabled (or rsvped? rsvping?)}
+         {:disabled (or rsvped? rsvping?)
+          :on-click #(>evt [:rsvp event-id])}
          button-txt " " participant-str])))
 
 (defn upcoming-event [event detail?]

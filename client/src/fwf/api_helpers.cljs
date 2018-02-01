@@ -60,7 +60,7 @@
 (defn parse-assigned-dish [event-response user-id]
   (let [{:keys [fwf.db/participants]}
         (parse-event event-response)
-        user? #(= user-id (::db/user-id %))]
+        user? #(if (= user-id (::db/user-id %)) %)]
     (::db/assigned-dish (some user? participants))))
 
 ;; -- Fetches -----------------------

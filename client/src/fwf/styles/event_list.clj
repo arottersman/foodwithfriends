@@ -201,7 +201,4 @@
 
     [:.email-chain-container
      {:width (pc 100)
-      :text-align "center"}]]
-
-   ;; event detail
-   ])
+      :text-align "center"}]]])
