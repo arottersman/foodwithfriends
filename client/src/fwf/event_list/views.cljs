@@ -3,7 +3,7 @@
             [re-frame.core :as re-frame]
             [fwf.utils :refer [>evt <sub]]
             [fwf.db :as db]
-            [devtools.defaults :as d]))
+            cljsjs.clipboard))
 
 (def close-x [:div {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
 (def down-chevron [:img.icon.down-chevron {:src "img/004-down-chevron.svg"}])
@@ -21,6 +21,40 @@
    "side" [:img.icon {:src "img/010-salad.svg"}]
    "drinks" [:img.icon {:src "img/006-glass.svg"}]
    "appetizer" [:img.icon {:src "img/008-food-1.svg"}]})
+
+(defn email-chain-button [target]
+  ;; Let this live self-contained,
+  ;; detached from reframe.
+  ;; from https://github.com/cljsjs/packages/tree/master/clipboard
+  (let [clipboard-atom (atom nil)]
+    (reagent/create-class
+     {:display-name "clipboard-button"
+      :component-did-mount
+      #(let [clipboard (new js/Clipboard (reagent/dom-node %))]
+         (reset! clipboard-atom clipboard))
+      :component-will-unmount
+      #(when-not (nil? @clipboard-atom)
+         (.destroy @clipboard-atom)
+         (reset! clipboard-atom nil))
+      :reagent-render
+      (fn []
+         [:button.email-chain
+          {:data-clipboard-target target}
+          "Copy emails to clipboard"])})))
+
+(defn rsvp-button [event]
+  (fn [event]
+    (let [rsvped? (::db/rsvped? event)
+          rsvping? (<sub [:upcoming-events/rsvping?])
+          participant-str (::db/participant-str event)
+          event-id (::db/event-id event)
+          button-txt (if rsvped?
+                       "You're going!"
+                       "RSVP")]
+      [:button.rsvp
+       {:disabled (or rsvped? rsvping?)
+        :on-click #(>evt [:rsvp event-id])}
+       button-txt " " participant-str])))
 
 (defn menu []
   (fn []
@@ -138,17 +172,18 @@
          [:p.address-line city ", " state]
          [:p.address-line zipcode]]]
        [:div.email-chain-container
-        [(if rsvped?
-           :button.email-chain.-rsvped
-           :button.email-chain)
-         {:href (str "mailto:" email-chain)}
-         "Email Everyone"]]
+        (if rsvped?
+          [:div
+           [:div.too-tiny-to-see {:id "email-chain"} email-chain]
+           [email-chain-button "#email-chain"]]
+          [rsvp-button event])]
        (if (not-empty agg-dietary-restrictions)
          [:p.event-dietary-restrictions
           "Dietary restrictions: "
           (clojure.string/join
            ", " agg-dietary-restrictions)])
-         [participant-list participants event]])))
+        (if rsvped?
+          [participant-list participants event])])))
 
 (defn event-snippet [event on-click]
   (fn [{:keys
@@ -161,20 +196,6 @@
      down-chevron
      [:div.event-time happening-at-time]
      [:div.event-hosts "Hosted by " hosted-by-str]]))
-
-(defn rsvp-button [event]
-  (fn [event]
-    (let [rsvped? (::db/rsvped? event)
-          rsvping? (<sub [:upcoming-events/rsvping?])
-          participant-str (::db/participant-str event)
-          event-id (::db/event-id event)
-          button-txt (if rsvped?
-                       "You're going!"
-                       "RSVP")]
-        [:button.rsvp
-         {:disabled (or rsvped? rsvping?)
-          :on-click #(>evt [:rsvp event-id])}
-         button-txt " " participant-str])))
 
 (defn upcoming-event [event detail?]
   (fn [event detail?]

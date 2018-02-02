@@ -199,6 +199,11 @@
       {:background diner-grey
        :border-color diner-grey}]]
 
+    [:.too-tiny-to-see
+     {:width 0
+      :height 0
+      :opacity 0}]
+
     [:.email-chain-container
      {:width (pc 100)
       :text-align "center"}]]])
