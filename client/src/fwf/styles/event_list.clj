@@ -47,6 +47,7 @@
      :box-sizing "border-box"
      :width (px 450)
      :margin "auto"
+     :overflow-x "hidden"
      :overflow-y "auto"
      :height list-height}
     (small-screen
