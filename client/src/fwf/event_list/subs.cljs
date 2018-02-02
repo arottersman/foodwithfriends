@@ -165,7 +165,7 @@
  (fn [app-db _]
    (reagent.ratom/make-reaction
     (fn []
-      (let [user-id (:user-id (<sub [:user]))
+      (let [user-id (::db/user-id (<sub [:user]))
             stale? (<sub [:user-events/stale?])
             access-token (<sub [:auth0/access-token])]
         (cond
