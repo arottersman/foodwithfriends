@@ -29,6 +29,10 @@
    :create-event [event-form]
    :send-invites [send-invites-page]})
 
+(defn redirect [url]
+  (fn [url]
+    (js/window.location.replace url)))
+
 (defn app []
   (let [page (<sub [:page])
         user-detail (<sub [:user-detail])
@@ -41,16 +45,15 @@
      [header "FORKFUL"]
      (cond
        auth0-polling?
-       [:p.polling "Getting your profile..."]
+       spinning-plate
        ;; needs auth?
        (or (not access-token)
            (not sub)
            (= page :login))
        [:section.auth
         (if auth0-error
-          [:p.error auth0-error])
-        [:a.login {:href auth0-authorize-url}
-         "New phone, who this?"]]
+          [:p.error auth0-error]
+          [redirect auth0-authorize-url])]
        :else
          (or (page->html page)
              [:div "Page not found"]))]))

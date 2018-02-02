@@ -185,4 +185,4 @@
                                      {:keywords? true})
                  :on-success        [:get-auth0-tokens-success]
                  :on-failure        [:bad-get-auth0-tokens-response]}
-    :db (assoc-in db [:auth0 :polling?] true)}))
+    :db (assoc-in db [::db/auth0 ::db/polling?] true)}))
