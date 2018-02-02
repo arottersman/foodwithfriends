@@ -12,6 +12,7 @@
                   :exclusions [org.clojure/tools.reader]]
                  [cljs-ajax "0.6.0"]
                  [com.andrewmcveigh/cljs-time "0.5.0"]
+                 [cljsjs/clipboard "1.6.1-1"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.1"]
                  [day8.re-frame/http-fx "0.1.4"]
