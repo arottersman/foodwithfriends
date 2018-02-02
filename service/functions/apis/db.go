@@ -742,7 +742,8 @@ func ReadEventsFromQueryResults(db *sql.DB, rows *sql.Rows) (Events, error) {
 
 func GetPastEventsForUser(db *sql.DB, userId int64) (Events, error) {
 	rows, err := db.Query(
-		`(SELECT
+		`SELECT * FROM
+                 ((SELECT
                         events.event_id,
                         events.title,
                         events.happening_at,
@@ -759,9 +760,10 @@ func GetPastEventsForUser(db *sql.DB, userId int64) (Events, error) {
 		        events.host_id
 		 FROM events, host_users
 		 WHERE host_users.host_id = events.host_id
-                 AND events.happening_at < current_timestamp
 		 AND host_users.user_id = $1
-                )`, userId)
+                )) as result
+                 WHERE result.happening_at < current_timestamp
+                 ORDER BY result.happening_at DESC`, userId)
 
 	if err != nil {
 		return Events{}, err

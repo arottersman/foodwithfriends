@@ -285,7 +285,7 @@ func HandleEventsForUser(w http.ResponseWriter, r *http.Request) {
 	events, err := GetPastEventsForUser(db, userId)
 	db.Close()
 	if err != nil {
-		http.Error(w, "Couldn't get events for user", 500)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
