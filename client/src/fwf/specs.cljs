@@ -29,6 +29,9 @@
          ::db/sub
          ::db/email]
    :opt [::db/name]))
+(spec/def ::db/error-response
+  (spec/keys
+   :un-opt [:status-text]))
 (spec/def ::db/auth0 (spec/keys
                       :opt [::db/polling?
                             ::db/access-token

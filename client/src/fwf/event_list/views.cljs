@@ -3,18 +3,14 @@
             [re-frame.core :as re-frame]
             [fwf.utils :refer [>evt <sub]]
             [fwf.db :as db]
+            [fwf.icons :refer [close-x
+                               down-chevron
+                               spinning-plate
+                               map-icon
+                               appetizer-big
+                               side-big
+                               main-big]]
             cljsjs.clipboard))
-
-(def close-x [:div {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
-(def down-chevron [:img.icon.down-chevron {:src "img/004-down-chevron.svg"}])
-(def house [:img.icon {:src "img/005-house.svg"}])
-(def spinning-plate [:img.icon.big.spin {:src "img/009-food.svg"}])
-(def email [:img.icon {:src "img/003-letter.svg"}])
-(def copy-icon [:img.icon {:src "img/002-copy.svg"}])
-(def map-icon [:img.icon {:src "img/001-street-map.svg"}])
-(def appetizer-big [:img.icon.medium {:src "img/008-food-1.svg"}])
-(def side-big [:img.icon.medium {:src "img/010-salad.svg"}])
-(def main-big [:img.icon.medium {:src "img/007-turkey.svg"}])
 
 (def dish->icon
   {"main" [:img.icon {:src "img/007-turkey.svg"}]

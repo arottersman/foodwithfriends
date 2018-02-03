@@ -125,40 +125,17 @@
    :width "calc(100% - 1em)"
    :font-size h4-font-size})
 
-(def auth-section
-  [[:section.auth
+(def limbo-page
+  [[:.limbo-page
     {:display "flex"
+     :align-items "center"
      :flex-direction "column"
-     :background-color accent
-     :color white
-     :border-radius (px 300)
-     :max-width (px 300)
-     :height (px 120)
-     :margin "auto"
-     :box-shadow (box-shadow (px 6)
-                                 (px 6)
-                                 (px 6)
-                                 (px 3)
-                                 [0 0 0 0.3])}]
-   [(sel/> :section.auth :p.error)
-    {:margin "auto"
-     :border 0
-     :background "none"
-     :color "white"
-     :max-width (px 200)}]
-   [(sel/> :section.auth :.login)
-    {:font-size h3-font-size
-     :color "white"
-     :font-family "monospace"
-     :margin "auto"
-     :cursor "pointer"
-     :text-decoration "none"}
-    [:&:visited
-     {:color light}]
-    [:&:hover
-     :&:focus
-     {:text-decoration "underline"}]]])
-
+     :padding (rem 1)
+     :text-align "center"
+     :margin-top (rem 2)
+     :font-size h2-font-size}
+    [:.icon
+     {:margin-bottom (rem 1)}]]])
 
 (def event-form
   [[:form.event-form
@@ -412,7 +389,7 @@
   typography
   header
   event-list
-  auth-section
+  limbo-page
   user-form
   event-form
   modal)

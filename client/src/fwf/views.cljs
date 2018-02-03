@@ -3,14 +3,14 @@
             [re-frame.core :as re-frame]
             [fwf.constants :refer [auth0-authorize-url]]
             [fwf.utils :refer [<sub]]
+            [fwf.icons :refer [spinning-plate
+                               appetizer-big]]
             [fwf.event-list.views :refer [events-page]]
             [fwf.event-form.views :refer [event-form]]
             [fwf.user-form.views
              :refer [user-form
                      add-host-to-user-page]]
             [fwf.admin.views :refer [send-invites-page]]))
-
-(def spinning-plate [:img.icon.big.spin {:src "img/009-food.svg"}])
 
 (defn header [text]
   (fn [text]
@@ -45,15 +45,20 @@
      [header "FORKFUL"]
      (cond
        auth0-polling?
-       spinning-plate
+       [:div.limbo-page
+        spinning-plate]
        ;; needs auth?
        (or (not access-token)
            (not sub)
            (= page :login))
-       [:section.auth
-        (if auth0-error
-          [:p.error auth0-error]
-          [redirect auth0-authorize-url])]
+       (if auth0-error
+         [:div
+          [:div.limbo-page
+           appetizer-big
+           auth0-error]
+          [redirect auth0-authorize-url]])
        :else
          (or (page->html page)
-             [:div "Page not found"]))]))
+             [:div.limbo-page
+              appetizer-big
+              "Not sure what you're looking for, so here's a lil' shrimpy."]))]))

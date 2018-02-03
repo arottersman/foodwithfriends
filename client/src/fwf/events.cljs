@@ -1,4 +1,5 @@
 (ns fwf.events
+
   (:require
    [ajax.core :as ajax]
    [day8.re-frame.http-fx]
@@ -64,7 +65,8 @@
   check-spec-interceptor]
  (fn [{:keys [db local-store-auth0]} _]
    (let [auth0-default (::db/auth0 default-db)
-         auth0 (merge auth0-default local-store-auth0)]
+         current-auth0 (::db/auth0 db)
+         auth0 (merge auth0-default current-auth0 local-store-auth0)]
      {:db (merge db (assoc default-db
                            ::db/auth0 auth0))})))
 
@@ -86,8 +88,8 @@
  :set-login-error
  fwf-interceptors
  (fn [db [error-message]]
-   (assoc-in db [::db/auth0 ::db/error-response]
-             {:status-text error-message})))
+   (assoc-in db [::db/auth0 ::db/error-response :status-text]
+             error-message)))
 
 ;; -- API Events and FX -----------
 
