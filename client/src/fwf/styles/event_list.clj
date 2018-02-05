@@ -1,18 +1,11 @@
 (ns fwf.styles.event-list
-  (:use [fwf.styles.constants]
-        [fwf.styles.utils]))
+  (:use [fwf.styles.utils]))
 
 (def event-list-menu-height (px 33))
 (def section-height (str "calc(100vh - "
                       header-height ")"))
 (def list-height (str "calc(100% - "
                       event-list-menu-height ")"))
-(def debuttonified
-  {:border 0
-   :background "none"
-   :cursor "pointer"
-   :font-size (pc 100)
-   :font-family primary-font-family})
 
 (def event-list
   ;; Menu

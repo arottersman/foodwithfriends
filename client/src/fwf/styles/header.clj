@@ -1,6 +1,5 @@
 (ns fwf.styles.header
-  (:use fwf.styles.utils
-        fwf.styles.constants)
+  (:use fwf.styles.utils)
   (:require [garden.selectors :as sel]))
 
 (def hexagon-width (px 200))

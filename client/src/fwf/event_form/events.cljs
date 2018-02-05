@@ -104,8 +104,7 @@
                    :format           (ajax/json-request-format)
                    :params           {:title
                                       (::db/title event-form)
-                                      :description
-                                      (::db/description event-form)
+                                      :description ""
                                       :happeningAt
                                       (construct-datetime
                                        (::db/happening-at-date

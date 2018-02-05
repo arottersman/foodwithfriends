@@ -1,6 +1,5 @@
 (ns fwf.styles.modals
-  (:use [fwf.styles.constants]
-        [fwf.styles.utils]))
+  (:use [fwf.styles.utils]))
 
 (def modal [:.modal-background
             {:background "rgba(0, 0, 0, 0.5)"

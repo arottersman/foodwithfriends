@@ -1,6 +1,5 @@
 (ns fwf.styles.core
-  (:use [fwf.styles.utils]
-        [fwf.styles.constants])
+  (:use [fwf.styles.utils])
   (:require
    [garden.def :refer [defstyles]]
    [garden.selectors :as sel]
@@ -9,6 +8,7 @@
    [garden.stylesheet :refer [at-keyframes]]
    [fwf.styles.header :refer [header]]
    [fwf.styles.event-list :refer [event-list]]
+   [fwf.styles.event-form :refer [event-form]]
    [fwf.styles.modals :refer [modal]]))
 
 ;; Colors
@@ -116,15 +116,6 @@
    :font-weight 600
    :font-size h4-font-size})
 
-(def basic-input
-  {:margin "0.5em 0"
-   :padding (em 0.5)
-   :border 0
-   :border-bottom "2px solid black"
-   :color black
-   :width "calc(100% - 1em)"
-   :font-size h4-font-size})
-
 (def limbo-page
   [[:.limbo-page
     {:display "flex"
@@ -136,93 +127,6 @@
      :font-size h2-font-size}
     [:.icon
      {:margin-bottom (rem 1)}]]])
-
-(def event-form
-  [[:form.event-form
-    {:background white
-     :overflow-y "auto"
-     :border-radius (px 5)
-     :color primary
-     :margin (em 1)
-     :padding (em 0.5)}]
-
-   (medium-screen
-    [:form.event-form
-     {:margin "auto"
-      :padding "0.5em 1.5em"}])
-
-   (large-screen
-    [:form.event-form
-     {:margin "auto"
-      :padding "0.5em 1.5em"}])
-
-   [:form.event-form
-    [:h2
-     :h4
-     :h3
-     {:margin 0
-      :margin-bottom (em 1)}]]
-   [(sel/> :form.event-form :label)
-    {:display "block"}]
-   [(sel/> :form.event-form :label :input)
-    (sel/> :form.event-form :label :textarea)
-    basic-input]
-
-   [(sel/> :form.event-form :div.date-picker)
-    {:height (px 260)
-     :overflow-y "auto"}]
-   [:div.date-picker
-    [:button
-     {:font-size (px 14)
-      :font-weight 700
-      :color white
-      :background accent-light
-      :border 0
-      :border-radius (px 5)
-      :margin (px 1)
-      :box-shadow (box-shadow
-                   (px 1)
-                   (px 1)
-                   (px 1)
-                   (px 1)
-                   [0 0 0 0.2])
-      :width (px 32)
-      :cursor "pointer"}]
-    [:div.blank-date
-     :div.selected-date
-     {:text-align "center"}]
-    [:div.selected-date
-     {:font-size (px 14)
-      :font-weight 800
-      :line-height (px 22)
-      :height (px 22)
-      :color white
-      :background tea-green
-      :border-radius (px 5)}]
-    [:table {:margin-bottom (em 0.5)}]]
-   [:div.timepicker
-    {:display "flex"}
-    [:label.unit
-     {:display "block"}
-     [:input
-      {:font-size h3-font-size
-       :margin-right (em 0.5)
-       :display "block"
-       :width (px 34)}]]
-    [:select.am-pm
-     {:font-size h4-font-size
-      :border 0
-      :background accent-light
-      :height (px 30)
-      :margin (em 0.7)
-      :margin-top "auto"
-      :margin-bottom 0
-      :color white}]]
-   [:p.info {:margin-top (em 1)}]
-   [:button.done
-    basic-button
-    [:&:disabled
-     {:opacity 0.3}]]])
 
 (def user-form [[:form.user-form
     {:background white

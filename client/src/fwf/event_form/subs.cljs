@@ -26,11 +26,6 @@
    (-> db ::db/event-form ::db/title)))
 
 (reg-sub
- :event-form/description
- (fn [db _]
-   (-> db ::db/event-form ::db/description)))
-
-(reg-sub
  :event-form/happening-at-date
  (fn [db _]
    (-> db ::db/event-form ::db/happening-at-date)))
@@ -51,6 +46,14 @@
    (-> db ::db/event-form ::db/error-response)))
 
 ;; -- subscription handlers ---
+(reg-sub
+ :event-form/error-string
+ (fn [_ _]
+   [(subscribe [:event-form/error-response])])
+ (fn [[event-form/error-response] _]
+   (if error-response
+     "Uh-oh, something went wrong! Are you sure it's your turn to create an event?")))
+
 (reg-sub
  :event-form/grouped-date-options
  (fn [_ _]

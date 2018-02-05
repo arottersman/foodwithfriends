@@ -104,7 +104,6 @@
 (defn event-form []
   (fn []
     (let [title (<sub [:event-form/title])
-          description (<sub [:event-form/description])
           {:keys [fwf.db/hour
                   fwf.db/minute
                   fwf.db/time-of-day]}
@@ -113,20 +112,15 @@
           polling? (<sub [:event-form/polling?])
           error (<sub [:event-form/error-string])]
       [:form.event-form
-       [:h2 "create your pot*uck!"]
-       [:label "What should we call your pot*uck?"
+       [:h2.event-header "Create your event"]
+       [:label "Give a description or maybe a little theme"
         [:input {:value title
                  :on-change #(>evt [:event-form/update-title
                                     (-> % .-target .-value)])
                  }]]
-       [:label "Add a description, if you want"
-        [:textarea {:value description
-                    :on-change #(>evt [:event-form/update-description
-                                       (-> % .-target .-value)])
-                    }]]
-       [:h4 "when will it be?"]
+       [:h3 "When will it be?"]
        [multi-month-datepicker]
-       [:h4 "what time?"]
+       [:h3 "What time?"]
        [timepicker {:hour hour
                     :minute minute
                     :time-of-day time-of-day
@@ -136,13 +130,14 @@
                                         minute-str
                                         new-time-of-day]))}]
        [:p.info
-        "after you're done, make sure to rsvp to your"
+        "After you're done, make sure to rsvp to your"
         " event."]
        (if error
          [:p.error error])
-       [:button.done {:type "button"
-                      :on-click #(>evt [:create-event])
-                      :disabled (or (not valid?)
-                                    polling?)}
-        "Done!"]
+       [:div.submit-container
+        [:button.done {:type "button"
+                       :on-click #(>evt [:create-event])
+                       :disabled (or (not valid?)
+                                     polling?)}
+         "Done!"]]
        ])))
