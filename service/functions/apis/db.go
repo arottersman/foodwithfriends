@@ -580,7 +580,6 @@ func GetUsersForEvent(db *sql.DB, eventId int64) (Users, error) {
                                 users.name,
                                 users.email,
                                 users.dietary_restrictions,
-                                users.auth0_id,
                                 event_users.assigned_dish,
                                 event_users.bringing
                             FROM users, event_users
@@ -598,12 +597,11 @@ func GetUsersForEvent(db *sql.DB, eventId int64) (Users, error) {
 			name                 string
 			email                string
 			dietary_restrictions sql.NullString
-			auth0_id             string
 			assigned_dish        sql.NullString
 			bringing             sql.NullString
 		)
 		scanErr := rows.Scan(&user_id, &name, &email,
-			&dietary_restrictions, &auth0_id,
+			&dietary_restrictions,
 			&assigned_dish, &bringing)
 
 		dietaryRestrictionsArray :=
@@ -618,7 +616,6 @@ func GetUsersForEvent(db *sql.DB, eventId int64) (Users, error) {
 			Name:                name,
 			Email:               email,
 			DietaryRestrictions: dietaryRestrictionsArray,
-			Auth0Id:             auth0_id,
 			AssignedDish:        NullStringToString(assigned_dish),
 			Bringing:            NullStringToString(bringing),
 		})

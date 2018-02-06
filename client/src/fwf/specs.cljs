@@ -40,7 +40,7 @@
 
 ;; User
 (spec/def ::db/host-id nullable-int? )
-(spec/def ::db/auth0-id string?)
+(spec/def ::db/auth0-id nullable-string?)
 (spec/def ::db/user-id int?)
 (spec/def ::db/name nullable-string?)
 (spec/def ::db/dietary-restrictions
