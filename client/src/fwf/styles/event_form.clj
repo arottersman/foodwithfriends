@@ -21,12 +21,16 @@
      {:margin "auto"}])
 
    [:h2
+    {:font-family fancy-font-family}]
+
+   [:h2
     :h3
-    {:margin-bottom (rem 1)}]
+    {:margin-bottom (css-rem 1)}]
 
    [(sel/> :form.event-form :label)
     {:display "block"
-     :font-family fancy-font-family}]
+     :color diner-grey
+     :font-family primary-font-family}]
 
    [(sel/> :form.event-form :label :input)
     (sel/> :form.event-form :label :textarea)
@@ -37,8 +41,8 @@
      :overflow-y "auto"
      :border-radius (px 3)
      :border (str "3px dashed" diner-red)
-     :padding (rem 1)
-     :margin-bottom (rem 1)
+     :padding (css-rem 1)
+     :margin-bottom (css-rem 1)
      :display "flex"
      :flex-direction "column"
      :align-items "center"}]
@@ -71,7 +75,8 @@
       :color white
       :background diner-red
       :border-radius (px 5)}]
-    [:table {:margin-bottom (em 0.5)}]]
+    [:table {:margin-bottom (em 0.5)}
+     [:th {:font-family fancy-font-family}]]]
    [:div.timepicker
     {:display "flex"}
     [:label.unit
@@ -90,17 +95,18 @@
       :margin-top "auto"
       :margin-bottom 0
       :color white}]]
-   [:p.info {:margin (rem 1)
+   [:p.info {:margin (css-rem 1)
              :font-size h4-font-size
-             :font-family fancy-font-family
+             :font-family primary-font-family
+             :color diner-grey
              :text-align "center"}]
 
    [:p.error
     {:color diner-red
      :text-align "center"
-     :margin-bottom (rem 1)}]
+     :margin-bottom (css-rem 1)}]
 
-   [:.submit-container
+   [:.event-submit-container
     {:display "flex"}
 
     [:button.done

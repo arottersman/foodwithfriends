@@ -134,7 +134,7 @@
         " event."]
        (if error
          [:p.error error])
-       [:div.submit-container
+       [:div.event-submit-container
         [:button.done {:type "button"
                        :on-click #(>evt [:create-event])
                        :disabled (or (not valid?)

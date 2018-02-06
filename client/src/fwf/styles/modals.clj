@@ -13,7 +13,7 @@
                       :margin "auto"
                       :border-radius (px 5)
                       :position "relative"
-                      :padding (rem 2)}
+                      :padding (css-rem 2)}
              (small-screen
               [:& {:border-radius 0}])
              [:button.close {:position "absolute"
@@ -42,4 +42,4 @@
               {:font-size h3-font-size
                :text-align "center"}]
              [:div.user-info
-              {:margin-top (rem 0.7)}]]])
+              {:margin-top (css-rem 0.7)}]]])

@@ -18,7 +18,7 @@
   (str num "pt"))
 (defn px [num]
   (str num "px"))
-(defn rem [num]
+(defn css-rem [num]
   (str num "rem"))
 
 (defn box-shadow [w x y z [r g b a]]

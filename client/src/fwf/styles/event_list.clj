@@ -50,14 +50,14 @@
     {:display "flex"
      :text-align "center"
      :padding "0 1rem"
-     :margin-top (rem 4)
+     :margin-top (css-rem 4)
      :flex-direction "column"
      :align-items "center"
      :justify-content "flex-start"}
     [:.no-events
      :.error
      {:font-size h4-font-size
-      :margin-top (rem 0.7)}]]
+      :margin-top (css-rem 0.7)}]]
    ;; event list item
    [:ul.events {:padding 0
                 :flex "1 0 auto"
@@ -107,7 +107,7 @@
        :width (pc 80)
        :text-align "left"
        :font-weight "normal"
-       :margin-bottom (rem 0.7)}]
+       :margin-bottom (css-rem 0.7)}]
      [:.event-time :.event-hosts
       {:font-size h4-font-size}]
      [:.event-time
@@ -122,7 +122,7 @@
       :p.event-dietary-restrictions
       :p.no-people
       {:color diner-grey
-       :margin-top (rem 0.6)
+       :margin-top (css-rem 0.6)
        :font-style "italic"}]
      [:p.event-dietary-restrictions
       :p.no-people
@@ -131,14 +131,14 @@
      [:.event-location
       {:width (px 195)
        :display "flex"
-       :margin-top (rem 0.6)
+       :margin-top (css-rem 0.6)
        :justify-content "flex-end"}
       [:.icon
        {:margin-top (px 6)}]
       [:.address-line
        {:text-align "left"
         :display "inline"
-        :margin-right (rem 0.4)}]]
+        :margin-right (css-rem 0.4)}]]
 
      (small-screen
       [:.event-hosts

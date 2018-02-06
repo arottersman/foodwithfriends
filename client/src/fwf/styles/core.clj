@@ -3,12 +3,12 @@
   (:require
    [garden.def :refer [defstyles]]
    [garden.selectors :as sel]
-
    [garden.color :as color]
    [garden.stylesheet :refer [at-keyframes]]
    [fwf.styles.header :refer [header]]
    [fwf.styles.event-list :refer [event-list]]
    [fwf.styles.event-form :refer [event-form]]
+   [fwf.styles.user-form :refer [user-form]]
    [fwf.styles.modals :refer [modal]]))
 
 ;; Colors
@@ -121,105 +121,12 @@
     {:display "flex"
      :align-items "center"
      :flex-direction "column"
-     :padding (rem 1)
+     :padding (css-rem 1)
      :text-align "center"
-     :margin-top (rem 2)
+     :margin-top (css-rem 2)
      :font-size h2-font-size}
     [:.icon
-     {:margin-bottom (rem 1)}]]])
-
-(def user-form [[:form.user-form
-    {:background white
-     :border-radius (px 5)
-     :border 0
-     :border-color secondary
-     :color primary
-     :padding (em 1)
-     :margin "auto"
-     :margin-top (em 1)}
-    (small-screen
-     [:& {:max-width (px 250)}])
-    (medium-screen
-     [:& {:max-width (px 580)}])
-    (large-screen
-     [:& {:max-width (px 580)}])]
-
-   [(sel/> :form.user-form :.title)
-    {:margin-top 0
-     :margin-bottom (em 0.55)}]
-
-   [(sel/> :form.user-form :label)
-    {:color secondary
-     :display "flex"
-     :flex-direction "column"
-     :font-weight 800
-     :font-size h4-font-size
-     :font-variant "small-caps"
-     :text-transform "lowercase"}]
-
-   [(sel/> :form.user-form :label.question)
-    {:font-variant "none"}]
-
-   [(sel/> :form.user-form :label :input)
-    {:margin-bottom (em 0.7)}]
-
-   [(sel/> :form.user-form :.prefilled-input)
-    (assoc basic-input :padding (em 0.7)
-                       :margin-top (em 0.3)
-                       :margin-bottom (em 0.55))]
-
-   [:.clearable-input
-    {:display "flex"
-     :width (pc 100)
-     :margin-bottom (em 1)
-     :flex-direction "row"}]
-
-   [(sel/> :.clearable-input :label)
-    {:display "none"}]
-
-   [(sel/> :.clearable-input :input)
-    (sel/> :form.user-form :label :input)
-    (assoc basic-input
-           :width "calc(100% - 1.4em)")]
-
-   [(sel/> :.clearable-input :input)
-    (sel/> :form.user-form :label :input)
-    (sel/> :.clearable-input :button)
-    {:font-size h4-font-size
-     :margin "1px 0"
-     :padding (em 0.7)
-     :border 0}]
-
-   [(sel/> :.clearable-input :input)
-    {:border-radius "5px 0 0 5px"}]
-
-   [(sel/> :.clearable-input :button)
-    {:background accent
-     :color "white"
-     :cursor "pointer"
-     :border-radius "0 5px 5px 0"}]
-
-   [(sel/> :form.user-form :button)
-    basic-button]
-   [(sel/> :form.user-form :button)
-    [:&:disabled {:box-shadow "none"
-                  :opacity 0.8}]]
-
-   [:h3.form-section-title {:text-align "center"}]
-   [(sel/> :form.user-form :button.host)
-    {:text-align "left"
-     :margin 0
-     :margin-bottom (em 0.5)
-     :border-radius (px 5)
-     :font-variant "none"}]
-   [(sel/> :button.host :h4)
-    (sel/> :button.host :p)
-    (sel/> :button.host :label)
-    {:margin (em 0.3)}]
-
-   [(sel/> :button.host :p)
-    {:font-weight 400}]
-  ])
+     {:margin-bottom (css-rem 1)}]]])
 
 (def rsvped {:background tea-green
              :color white
