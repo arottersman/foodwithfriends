@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	_ "github.com/lib/pq"
 	"os"
+	"regexp"
 	"strings"
 	"time"
-
-	_ "github.com/lib/pq"
 )
 
 func Connect() (*sql.DB, error) {
@@ -334,6 +334,8 @@ func ReadHostsFromQueryResults(db *sql.DB, rows *sql.Rows) (Hosts, error) {
 }
 
 func GetHostsByAddress(db *sql.DB, address string) (Hosts, error) {
+	numRegex := regexp.MustCompile("[0-9]+")
+	addressNums := strings.Join(numRegex.FindAllString(address, -1), "|")
 	rows, err := db.Query(
 		`SELECT hosts.host_id,
                 hosts.address,
@@ -342,9 +344,8 @@ func GetHostsByAddress(db *sql.DB, address string) (Hosts, error) {
                 hosts.zipcode,
                 hosts.max_occupancy
               FROM hosts
-              WHERE to_tsvector(hosts.address) @@
-                    plainto_tsquery($1)
-        `, address)
+              WHERE hosts.address SIMILAR TO '%(' || $1 || ')%'
+        `, addressNums)
 	if err != nil {
 		return Hosts{}, err
 	}
