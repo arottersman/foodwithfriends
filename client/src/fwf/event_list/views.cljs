@@ -1,6 +1,7 @@
 (ns fwf.event-list.views
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
+            [secretary.core :as secretary]
             [fwf.utils :refer [>evt <sub]]
             [fwf.db :as db]
             [fwf.icons :refer [close-x
@@ -10,7 +11,8 @@
                                appetizer-big
                                side-big
                                main-big]]
-            cljsjs.clipboard))
+            cljsjs.clipboard
+            [secretary.core :as secretary]))
 
 (def dish->icon
   {"main" [:img.icon {:src "img/007-turkey.svg"}]
@@ -152,9 +154,14 @@
             fwf.db/zipcode
             fwf.db/google-maps-url
             fwf.db/email-chain
-            fwf.db/rsvped?]} event]
+            fwf.db/rsvped?
+            fwf.db/your-house?
+            fwf.db/event-id]} event]
       [:div.event-detail
        [:h1.event-date happening-at-date]
+       (if your-house?
+         [:button.edit {:on-click #(js/location.assign "/#/edit-event")}
+          "Edit"])
        [:button.close {:on-click dismiss} close-x]
        [:div.event-time happening-at-time]
        [:div.event-hosts "Hosted by " hosted-by-str]

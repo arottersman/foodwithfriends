@@ -181,7 +181,7 @@
     :height (px 50)}]
   (at-keyframes "spinnerRotate"
                 [:from {:transform "rotate(0deg)"}]
-                [:to {:transform "rotate(360deg)"}]) 
+                [:to {:transform "rotate(360deg)"}])
   [:.spin
    {:-webkit-animation-name "spinnerRotate"
     :-webkit-animation-duration "4s"

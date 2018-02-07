@@ -26,6 +26,7 @@
   {:create-user [user-form]
    :add-host-to-user [add-host-to-user-page]
    :events [events-page]
+   :edit-event [event-form {:edit? true}]
    :create-event [event-form]
    :send-invites [send-invites-page]})
 

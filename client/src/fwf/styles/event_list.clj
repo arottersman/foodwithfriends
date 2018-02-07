@@ -176,6 +176,15 @@
      (assoc debuttonified
             :font-size (px 25)
             :line-height (px 25))]
+    [:.edit
+     (assoc debuttonified
+            :font-size (px 15)
+            :padding-left 0
+            :margin-top (px 2)
+            :line-height (px 25)
+            :height (px 25)
+            :text-decoration "underline"
+            :align-self "flex-start")]
 
     [:.rsvp
      :.email-chain

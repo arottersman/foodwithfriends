@@ -1,5 +1,6 @@
 (ns fwf.core
   (:import goog.History)
+
   (:require [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [dispatch-sync]]
             [secretary.core :as secretary :refer-macros [defroute]]
@@ -38,6 +39,9 @@
 
 (defroute "/create-user" []
   (>evt [:set-page :create-user]))
+
+(defroute "/edit-event" []
+  (>evt [:set-page :edit-event]))
 
 (defroute "/create-event" []
   (>evt [:set-page :create-event]))
