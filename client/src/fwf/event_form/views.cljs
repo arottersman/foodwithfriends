@@ -53,7 +53,9 @@
              (cond
                (= date :not-in-month)
                [:div.blank-date "x"]
-               (cljs-time.core/= date selected)
+               (cljs-time.core/=
+                (cljs-time.core/at-midnight date)
+                (cljs-time.core/at-midnight selected))
                [:div.selected-date (cljs-time.core/day date)]
                :else
                [:button {:type "button"

@@ -2,12 +2,14 @@
   (:require
    [ajax.core :as ajax]
    [cljs-time.core]
+   [cljs-time.format]
    [re-frame.core :refer [reg-event-db
                           reg-event-fx]]
    [fwf.events :refer [fwf-interceptors]]
    [fwf.db :as db]
    [fwf.constants :refer [api-url]]
    [fwf.api-helpers :refer [auth-header
+                            server-response-date-formatter
                             server-request-date-formatter]]))
 
 (defn- construct-datetime
@@ -62,9 +64,37 @@
                  [::db/event-form ::db/happening-at-time]
                  {::db/hour hour
                   ::db/minute minute
-                  ::db/time-of-day time-of-day})
+                  ::db/time-of-day (keyword time-of-day)})
        db))))
 
+(reg-event-db
+ :event-form/from-event
+ fwf-interceptors
+ (fn [db [{:keys [fwf.db/title
+                  fwf.db/description
+                  fwf.db/happening-at]}]]
+   (let [happening-at-date (cljs-time.format/parse
+                                server-response-date-formatter
+                                happening-at)
+         happening-at-time {::db/hour
+                            (js/parseInt
+                             (cljs-time.format/unparse
+                              (cljs-time.format/formatter "h")
+                              happening-at-date))
+                            ::db/minute
+                            (cljs-time.core/minute
+                             happening-at-date)
+                            ::db/time-of-day
+                            (keyword
+                             (cljs-time.format/unparse
+                              (cljs-time.format/formatter "a")
+                              happening-at-date))}]
+     (assoc db ::db/event-form
+            (assoc (::db/event-form db)
+                   ::db/title title
+                   ::db/description description
+                   ::db/happening-at-date happening-at-date
+                   ::db/happening-at-time happening-at-time)))))
 ;; api
 (reg-event-db
  :create-event-success
