@@ -255,7 +255,7 @@
 
 (defn user-event [event detail?]
   (fn [event detail?]
-    [:li.event
+    [:li.event.-your-event
      (cond
        detail?
        [event-detail
