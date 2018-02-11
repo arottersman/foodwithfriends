@@ -138,8 +138,8 @@
                      (::db/user-id user))
            } [user-link user])])))
 
-(defn event-detail [event dismiss]
-  (fn [event]
+(defn event-detail [event dismiss editable?]
+  (fn [event dismiss editable?]
     (let [{:keys
            [fwf.db/participants
             fwf.db/agg-dietary-restrictions
@@ -155,11 +155,10 @@
             fwf.db/google-maps-url
             fwf.db/email-chain
             fwf.db/rsvped?
-            fwf.db/your-house?
             fwf.db/event-id]} event]
       [:div.event-detail
        [:h1.event-date happening-at-date]
-       (if your-house?
+       (if editable?
          [:button.edit {:on-click (fn []
                                     (>evt [:event-form/from-event event])
                                     (js/location.assign "/#/edit-event"))}
@@ -214,7 +213,8 @@
          detail?
          [event-detail
           event
-          #(>evt [:set-upcoming-event-detail nil])]
+          #(>evt [:set-upcoming-event-detail nil])
+          your-house?]
          :else
          [:div.event-snippet-container
            [event-snippet
