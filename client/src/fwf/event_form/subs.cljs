@@ -26,6 +26,11 @@
    (-> db ::db/event-form ::db/title)))
 
 (reg-sub
+ :event-form/event-id
+ (fn [db _]
+   (-> db ::db/event-form ::db/event-id)))
+
+(reg-sub
  :event-form/happening-at-date
  (fn [db _]
    (-> db ::db/event-form ::db/happening-at-date)))

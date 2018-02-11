@@ -110,12 +110,15 @@
                   fwf.db/minute
                   fwf.db/time-of-day]}
           (<sub [:event-form/happening-at-time-strs])
+          event-id (<sub [:event-form/event-id])
           valid? (<sub [:event-form/valid?])
           polling? (<sub [:event-form/polling?])
           error (<sub [:event-form/error-string])
           submit-event (if edit?
                          :edit-event
                          :create-event)]
+      (if (and edit? (not event-id))
+        (js/location.assign "/#/"))
       [:form.event-form
        [:h2.event-header "Create your event"]
        [:label "Give a description or maybe a little theme"
