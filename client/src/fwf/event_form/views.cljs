@@ -103,8 +103,8 @@
       [:option {:value :am} "AM"]
       [:option {:value :pm} "PM"]]]))
 
-(defn event-form []
-  (fn []
+(defn event-form [{:keys [edit?]}]
+  (fn [{:keys [edit?]}]
     (let [title (<sub [:event-form/title])
           {:keys [fwf.db/hour
                   fwf.db/minute
@@ -112,7 +112,10 @@
           (<sub [:event-form/happening-at-time-strs])
           valid? (<sub [:event-form/valid?])
           polling? (<sub [:event-form/polling?])
-          error (<sub [:event-form/error-string])]
+          error (<sub [:event-form/error-string])
+          submit-event (if edit?
+                         :edit-event
+                         :create-event)]
       [:form.event-form
        [:h2.event-header "Create your event"]
        [:label "Give a description or maybe a little theme"
@@ -131,14 +134,15 @@
                                         hour-str
                                         minute-str
                                         new-time-of-day]))}]
-       [:p.info
-        "After you're done, make sure to rsvp to your"
-        " event."]
+       (if (not edit?)
+         [:p.info
+          "After you're done, make sure to rsvp to your"
+          " event."])
        (if error
          [:p.error error])
        [:div.event-submit-container
         [:button.done {:type "button"
-                       :on-click #(>evt [:create-event])
+                       :on-click #(>evt [submit-event])
                        :disabled (or (not valid?)
                                      polling?)}
          "Done!"]]

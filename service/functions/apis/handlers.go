@@ -218,7 +218,7 @@ func HandleEditEvent(w http.ResponseWriter, r *http.Request) {
 	updatedEvent, err := UpdateEvent(db, event)
 	db.Close()
 	if err != nil {
-		http.Error(w, "Couldn't update event", 400)
+		http.Error(w, err.Error(), 400)
 		return
 	}
 

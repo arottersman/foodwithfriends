@@ -167,7 +167,8 @@
                    ::db/happening-at-date
                    ::db/happening-at-time
                    ::db/polling?]
-             :opt [::db/error-response]))
+             :opt [::db/error-response
+                   ::db/event-id]))
 
 (spec/def ::db/possible-event-datetime cljs-time.core/date?)
 (spec/def

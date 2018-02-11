@@ -95,7 +95,7 @@
       :margin-top "auto"
       :margin-bottom 0
       :color white}]]
-   [:p.info {:margin (css-rem 1)
+   [:p.info {:margin-top (css-rem 1)
              :font-size h4-font-size
              :font-family primary-font-family
              :color diner-grey
@@ -103,8 +103,8 @@
 
    [:p.error
     {:color diner-red
-     :text-align "center"
-     :margin-bottom (css-rem 1)}]
+     :margin-top (css-rem 1)
+     :text-align "center"}]
 
    [:.event-submit-container
     {:display "flex"}
@@ -113,6 +113,7 @@
      {:background-color black
       :font-size h3-font-size
       :margin "auto"
+      :margin-top (css-rem 1)
       :width (px 250)
       :color white
       :font-family primary-font-family}

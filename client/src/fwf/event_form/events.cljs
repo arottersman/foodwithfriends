@@ -29,6 +29,18 @@
     (cljs-time.format/unparse
      server-request-date-formatter date-with-time)))
 
+(defn- hour-of-datetime [datetime]
+  (js/parseInt
+   (cljs-time.format/unparse
+    (cljs-time.format/formatter "h")
+    datetime)))
+
+(defn- time-of-day-of-datetime [datetime]
+  (keyword
+   (cljs-time.format/unparse
+    (cljs-time.format/formatter "a")
+    datetime)))
+
 (reg-event-db
  :event-form/update-title
  fwf-interceptors
@@ -70,27 +82,24 @@
 (reg-event-db
  :event-form/from-event
  fwf-interceptors
- (fn [db [{:keys [fwf.db/title
+ (fn [db [{:keys [fwf.db/event-id
+                  fwf.db/title
                   fwf.db/description
                   fwf.db/happening-at]}]]
    (let [happening-at-date (cljs-time.format/parse
                                 server-response-date-formatter
                                 happening-at)
          happening-at-time {::db/hour
-                            (js/parseInt
-                             (cljs-time.format/unparse
-                              (cljs-time.format/formatter "h")
-                              happening-at-date))
+                            (hour-of-datetime happening-at-date)
                             ::db/minute
                             (cljs-time.core/minute
                              happening-at-date)
                             ::db/time-of-day
-                            (keyword
-                             (cljs-time.format/unparse
-                              (cljs-time.format/formatter "a")
-                              happening-at-date))}]
+                            (time-of-day-of-datetime
+                             happening-at-date)}]
      (assoc db ::db/event-form
             (assoc (::db/event-form db)
+                   ::db/event-id event-id
                    ::db/title title
                    ::db/description description
                    ::db/happening-at-date happening-at-date
@@ -119,31 +128,54 @@
        (assoc-in [::db/event-form ::db/polling?]
                  false))))
 
+(defn- event-form->base-http-params
+  [event-form host-id]
+  {:title
+   (::db/title event-form)
+   :description ""
+   :happeningAt
+   (construct-datetime
+    (::db/happening-at-date
+     event-form)
+    (::db/happening-at-time
+     event-form))
+   :host {:hostId host-id}})
+
+(defn- event-form->http-xhrio [db]
+  (let [access-token (-> db ::db/auth0 ::db/access-token)]
+  {:headers          (auth-header access-token)
+   :uri              (str api-url "/events/")
+   :keywords?        true
+   :format           (ajax/json-request-format)
+   :response-format   (ajax/json-response-format
+                       {:keywords? true})
+   :on-success        [:create-event-success]
+   :on-failure        [:bad-create-event-response]}))
+
 ;; event-fx
 (reg-event-fx
  :create-event
  (fn
-   [{db :db} [_ event-id]]
-   (let [access-token (-> db ::db/auth0 ::db/access-token)
-         event-form (::db/event-form db)
+   [{db :db} _]
+   (let [event-form (::db/event-form db)
          host-id (-> db ::db/the-user ::db/user ::db/host-id)]
-     {:http-xhrio {:method           :put
-                   :headers          (auth-header access-token)
-                   :uri              (str api-url "/events/")
-                   :keywords?        true
-                   :format           (ajax/json-request-format)
-                   :params           {:title
-                                      (::db/title event-form)
-                                      :description ""
-                                      :happeningAt
-                                      (construct-datetime
-                                       (::db/happening-at-date
-                                        event-form)
-                                       (::db/happening-at-time
-                                        event-form))
-                                      :host {:hostId host-id}}
-                   :response-format   (ajax/json-response-format
-                                       {:keywords? true})
-                   :on-success        [:create-event-success]
-                   :on-failure        [:bad-create-event-response]}
+     {:http-xhrio (assoc (event-form->http-xhrio db)
+                         :method           :put
+                         :params           (event-form->base-http-params
+                                            event-form host-id))
       :db (assoc-in db [::db/event-form ::db/polling?] true)})))
+
+(reg-event-fx
+ :edit-event
+ (fn
+   [{db :db} _]
+   (let [event-form (::db/event-form db)
+         host-id (-> db ::db/the-user ::db/user ::db/host-id)
+         params  (assoc (event-form->base-http-params
+                         event-form
+                         host-id)
+                        :eventId (::db/event-id event-form))]
+   {:http-xhrio (assoc (event-form->http-xhrio db)
+                       :method           :post
+                       :params           params)
+    :db (assoc-in db [::db/event-form ::db/polling?] true)})))
