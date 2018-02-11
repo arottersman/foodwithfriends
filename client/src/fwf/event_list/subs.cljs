@@ -77,10 +77,13 @@
         (assoc ::db/email-chain (email-chain participants))
         (assoc ::db/participant-str (participant-str participants max-occupancy))
         (assoc ::db/hosted-by-str (str-host-by (::db/users host)))
-     )))
+        )))
 
 (defn- sort-prettified-events [events]
-  (sort-by (juxt ::db/your-house? ::db/rsvped?) true? events))
+  (let [reverse-compare (fn [a b] (compare b a))]
+    (sort-by (juxt ::db/your-house? ::db/rsvped?)
+             reverse-compare
+             events)))
 
 ;; --- subscriptions
 
