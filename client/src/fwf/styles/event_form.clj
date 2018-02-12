@@ -118,4 +118,17 @@
       :color white
       :font-family primary-font-family}
      [:&:disabled
-      {:opacity 0.3}]]]])
+      {:opacity 0.3}]]]
+  [:section.cant-host
+   {:background diner-grey-light
+    :width "auto"
+    :padding (css-rem 1)
+    :text-align "center"
+    :margin-bottom (css-rem 1)}
+   [:.cant-host-info
+    {:font-size h4-font-size}]
+   [:.cant-host-button
+    (assoc debuttonified
+           :text-decoration "underline"
+           :color diner-red
+           :font-weight 700)]]])

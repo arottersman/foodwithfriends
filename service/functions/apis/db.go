@@ -841,11 +841,8 @@ func AddHostInvitations(db *sql.DB, hosts Hosts) error {
 }
 
 func UpdateHostInvitation(db *sql.DB, hostId int64, status string) error {
-	_, err := db.Exec(`UPDATE event_creation_invites SET (
-                                 status
-                              ) = (
-                                 $1
-                              )
+	_, err := db.Exec(`UPDATE event_creation_invites
+                              SET status = $1
                               WHERE host_id = $2
                               AND status != 'complete'
                               AND status != 'pass'`,
@@ -857,13 +854,10 @@ func UpdateHostInvitation(db *sql.DB, hostId int64, status string) error {
 }
 
 func ExpireEventInvitations(db *sql.DB) (Hosts, error) {
-	rows, err := db.Query(`UPDATE event_creation_invites SET (
-                                 status
-                              ) = (
-                                 'complete'
-                              )
-                              WHERE status = 'event_created'
-                              RETURNING host_id`)
+	rows, err := db.Query(`UPDATE event_creation_invites
+                                  SET status = 'complete'
+                                  WHERE status = 'event_created'
+                                  RETURNING host_id`)
 	if err != nil {
 		return Hosts{}, err
 	}

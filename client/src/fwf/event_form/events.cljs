@@ -179,3 +179,17 @@
                        :method           :post
                        :params           params)
     :db (assoc-in db [::db/event-form ::db/polling?] true)})))
+
+(reg-event-fx
+ :cant-host
+ (fn
+   [{db :db} _]
+   (let [host-id (-> db ::db/the-user ::db/user ::db/host-id)]
+     {:http-xhrio (assoc (event-form->http-xhrio db)
+                         :method           :post
+                         :uri              (str api-url
+                                                "/events/cant-host"
+                                                "?hostId=" host-id)
+                         :on-success        [:create-event-success]
+                         :on-failure        [:bad-create-event-response])
+      :db (assoc-in db [::db/event-form ::db/polling?] true)})))

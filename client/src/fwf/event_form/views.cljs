@@ -121,6 +121,12 @@
         (js/location.assign "/#/"))
       [:form.event-form
        [:h2.event-header "Create your event"]
+       (if (not edit?)
+         [:section.cant-host
+          [:p.cant-host-info "Can't host this time around?"]
+          [:button.cant-host-button {:on-click #(>evt [:cant-host])
+                                     :disabled polling?}
+           "That's okay, just click here."]])
        [:label "Give a description or maybe a little theme"
         [:input {:value title
                  :on-change #(>evt [:event-form/update-title

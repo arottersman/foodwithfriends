@@ -4,6 +4,7 @@
 ;; -- Colors
 (def diner-red "#d13833")
 (def diner-grey "#808080")
+(def diner-grey-light "#dddddd")
 (def black "#000000")
 (def white "#FFFFFF")
 
