@@ -844,6 +844,7 @@ func UpdateHostInvitation(db *sql.DB, hostId int64, status string) error {
 	_, err := db.Exec(`UPDATE event_creation_invites
                               SET status = $1
                               WHERE host_id = $2
+                              AND status != 'event_created'
                               AND status != 'complete'
                               AND status != 'pass'`,
 		status, hostId)

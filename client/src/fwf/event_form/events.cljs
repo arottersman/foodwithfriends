@@ -188,7 +188,7 @@
      {:http-xhrio (assoc (event-form->http-xhrio db)
                          :method           :post
                          :uri              (str api-url
-                                                "/events/cant-host"
+                                                "/events/cant-host/"
                                                 "?hostId=" host-id)
                          :on-success        [:create-event-success]
                          :on-failure        [:bad-create-event-response])

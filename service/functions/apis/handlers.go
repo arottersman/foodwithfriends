@@ -188,9 +188,23 @@ func HandleCantHostEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	UpdateHostInvitation(db, hostId, PASS)
+	canCreate, err := CanHostCreateEvent(db, hostId)
+	if err != nil || !canCreate {
+		http.Error(w, "Not user's turn to create event", 400)
+		return
+	}
+
+	err = UpdateHostInvitation(db, hostId, PASS)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
 	err = SendEmailsToLeastRecentHosts(db, 1)
-	fmt.Printf("Error sending email to next host: %s", err.Error())
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 
 	db.Close()
 }
