@@ -108,7 +108,8 @@
     (let [title (<sub [:event-form/title])
           {:keys [fwf.db/hour
                   fwf.db/minute
-                  fwf.db/time-of-day]}
+                  fwf.db/time-of-day
+                  fwf.db/email-participants?]}
           (<sub [:event-form/happening-at-time-strs])
           event-id (<sub [:event-form/event-id])
           valid? (<sub [:event-form/valid?])
@@ -143,7 +144,13 @@
                                         hour-str
                                         minute-str
                                         new-time-of-day]))}]
-       (if (not edit?)
+       (if edit?
+         [:label.email-participants
+          [:input.email-participants-checkbox
+           {:type "checkbox"
+            :on-change #(>evt [:event-form/toggle-email-participants])
+            :checked email-participants?}]
+          "Email event participants with these updates?" ]
          [:p.info
           "After you're done, make sure to rsvp to your"
           " event."])

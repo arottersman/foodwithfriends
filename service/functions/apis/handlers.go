@@ -210,6 +210,9 @@ func HandleCantHostEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleEditEvent(w http.ResponseWriter, r *http.Request) {
+	shouldEmailParticipants :=
+		r.URL.Query().Get("emailParticipants") == "true"
+
 	var event Event
 
 	if r.Body == nil {
@@ -234,6 +237,10 @@ func HandleEditEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
+	}
+
+	if shouldEmailParticipants {
+		EmailEventUpdates(updatedEvent)
 	}
 
 	json.NewEncoder(w).Encode(updatedEvent)

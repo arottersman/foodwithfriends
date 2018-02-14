@@ -161,6 +161,8 @@
    :req [::db/hour
          ::db/minute
          ::db/time-of-day]))
+(spec/def ::db/email-participants? boolean?)
+
 (spec/def ::db/event-form
   (spec/keys :req [::db/title
                    ::db/description
@@ -168,7 +170,8 @@
                    ::db/happening-at-time
                    ::db/polling?]
              :opt [::db/error-response
-                   ::db/event-id]))
+                   ::db/event-id
+                   ::db/email-participants?]))
 
 (spec/def ::db/possible-event-datetime cljs-time.core/date?)
 (spec/def

@@ -131,4 +131,12 @@
     (assoc debuttonified
            :text-decoration "underline"
            :color diner-red
-           :font-weight 700)]]])
+           :font-weight 700)]]
+   [:label.email-participants
+    {:margin-top (css-rem 1)
+     :text-align "center"
+     :vertical-align "top"}
+    [:input.email-participants-checkbox
+     {:width (px 22)
+      :height (px 22)
+      :margin-right (css-rem 0.6)}]]])

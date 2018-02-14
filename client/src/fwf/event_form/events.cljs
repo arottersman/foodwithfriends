@@ -56,6 +56,17 @@
              new-description)))
 
 (reg-event-db
+ :event-form/toggle-email-participants
+ fwf-interceptors
+ (fn [db _]
+   (let [email-participants?
+         (-> db
+             ::db/event-form
+             ::db/email-participants?)]
+     (assoc-in db [::db/event-form ::db/email-participants?]
+               (not email-participants?)))))
+
+(reg-event-db
  :event-form/update-happening-at-date
  fwf-interceptors
  (fn [db [new-date]]
@@ -109,6 +120,7 @@
  :create-event-success
  fwf-interceptors
  (fn [db [response]]
+   (js/window.location.assign "/#/")
    (-> db
        (assoc ::db/page :events)
        (assoc-in [::db/upcoming-events ::db/stale?]
@@ -177,6 +189,10 @@
                         :eventId (::db/event-id event-form))]
    {:http-xhrio (assoc (event-form->http-xhrio db)
                        :method           :post
+                       :uri              (str api-url "/events/"
+                                              "?emailParticipants="
+                                              (::db/email-participants?
+                                               event-form))
                        :params           params)
     :db (assoc-in db [::db/event-form ::db/polling?] true)})))
 

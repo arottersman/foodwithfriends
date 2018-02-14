@@ -56,6 +56,7 @@
                   ::happening-at-date (cljs-time.core/now)
                   ::title ""
                   ::description ""
+                  ::email-participants? false
                   ::polling? false}
                  ::possible-event-start
                  possible-event-start
