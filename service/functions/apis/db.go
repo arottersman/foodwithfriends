@@ -489,7 +489,7 @@ func CreateEvent(db *sql.DB, event Event) (int64, error) {
                          title,
                          happening_at,
                          host_id
-                     ) VALUES ($1, $2, $3, $4)
+                     ) VALUES ($1, $2, $3)
                      RETURNING event_id`,
 		event.Title,
 		event.HappeningAt,
