@@ -102,7 +102,7 @@
 (defn host-search-results []
   (fn []
     (let [searched-hosts (<sub [:host-form/searched-hosts])]
-      [:form.user-form
+      [:form.user-form.search-results
        (map (fn [host]
               ^{:key (str "host" (::db/host-id host))}
               [:button.host
@@ -133,11 +133,13 @@
                  #(>evt
                    [:host-form/update-max-occupancy
                     (-> % .-target .-value (js/parseInt))])}]]
-       [:button {:on-click #(>evt [:create-host])
-                 :disabled (every? true? [(not valid?)
-                                          polling?])
-                 :type "button"}
-        "Submit"]])))
+
+       [:div.user-submit-container
+        [:button.done {:on-click #(>evt [:create-host])
+                       :disabled (every? true? [(not valid?)
+                                                polling?])
+                       :type "button"}
+         "Submit"]]])))
 
 (defn add-host-to-user-page []
   (fn []
@@ -155,6 +157,7 @@
          [:div
           (if (not-empty searched-hosts)
             [:div
+             [:h3.form-section-title "Live in one of these homes?"]
              [host-search-results]
              [:h3.form-section-title "None of these?"]])
            [create-host-form]])

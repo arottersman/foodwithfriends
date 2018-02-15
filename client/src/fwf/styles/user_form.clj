@@ -89,4 +89,7 @@
     {:margin (em 0.3)}]
 
    [(sel/> :button.host :p)
-    {:font-weight 400}]])
+    {:font-weight 400}]
+   [:form.user-form.search-results
+    {:overflow-y "auto"
+     :height (px 200)}]])
