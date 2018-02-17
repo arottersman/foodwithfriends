@@ -32,7 +32,8 @@
 
 (defn redirect [url]
   (fn [url]
-    (js/window.location.replace url)))
+    (js/window.location.assign url)
+    nil))
 
 (defn app []
   (let [page (<sub [:page])
@@ -52,12 +53,13 @@
        (or (not access-token)
            (not sub)
            (= page :login))
-       (if auth0-error
-         [:div
+       [:div
+        (if auth0-error
           [:div.limbo-page
            appetizer-big
            auth0-error]
-          [redirect auth0-authorize-url]])
+           [redirect auth0-authorize-url]
+          )]
        :else
          (or (page->html page)
              [:div.limbo-page

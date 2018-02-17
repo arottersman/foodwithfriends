@@ -4,10 +4,12 @@
    [cljs-time.core]
    [cljs-time.format]
    [re-frame.core :refer [reg-event-db
-                          reg-event-fx]]
+                          reg-event-fx
+                          after]]
    [fwf.events :refer [fwf-interceptors]]
    [fwf.db :as db]
    [fwf.constants :refer [api-url]]
+   [fwf.utils :refer [navigate-to!]]
    [fwf.api-helpers :refer [auth-header
                             server-response-date-formatter
                             server-request-date-formatter]]))
@@ -92,7 +94,8 @@
 
 (reg-event-db
  :event-form/from-event
- fwf-interceptors
+ [fwf-interceptors
+  (after #(navigate-to! "/edit-event"))]
  (fn [db [{:keys [fwf.db/event-id
                   fwf.db/title
                   fwf.db/description
@@ -118,9 +121,9 @@
 ;; api
 (reg-event-db
  :create-event-success
- fwf-interceptors
+ [fwf-interceptors
+  (after #(navigate-to! "/events"))]
  (fn [db [response]]
-   (js/window.location.assign "/#/")
    (-> db
        (assoc ::db/page :events)
        (assoc-in [::db/upcoming-events ::db/stale?]

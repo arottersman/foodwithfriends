@@ -80,13 +80,6 @@
   (if (= status 401)
     (wipe-local-store)))
 
-(defn- js-str->clj [js-str]
-  (try (-> js-str
-           (js/JSON.parse)
-           (js->clj :keywordize-keys true))
-       (catch js/Object e
-         "")))
-
 (defn- parse-auth0-profile [{:keys [name
                                     email_verified
                                     sub
@@ -115,4 +108,4 @@
                 (clojure.string/trim
                  access-token) #"^\"|\"$" "")
                ::profile
-               (parse-auth0-profile (js-str->clj (parse-id-token id-token)))})))))
+               (id-token->auth0-profile id-token)})))))

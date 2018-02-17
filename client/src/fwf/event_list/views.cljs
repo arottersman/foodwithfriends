@@ -160,8 +160,7 @@
        [:h1.event-date happening-at-date]
        (if editable?
          [:button.edit {:on-click (fn []
-                                    (>evt [:event-form/from-event event])
-                                    (js/location.assign "/#/edit-event"))}
+                                    (>evt [:event-form/from-event event]))}
           "Edit"])
        [:button.close {:on-click dismiss} close-x]
        [:div.event-time happening-at-time]

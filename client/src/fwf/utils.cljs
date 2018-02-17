@@ -21,12 +21,19 @@
 (defn valid-auth0-redirect? [href]
   (= auth0-state (href->param-val href "state")))
 
+(defn js-str->cljs [js-str]
+  (try (-> js-str
+           (js/JSON.parse)
+           (js->clj :keywordize-keys true))
+       (catch js/Object e
+         "")))
+
 (defn parse-id-token [id-token]
+  (js-str->cljs
    (b64/decodeString
-    (second (str/split id-token #"\."))))
+    (second (str/split id-token #"\.")))))
 
 (defn navigate-to!
   [path]
-  (set! (.-location js/window)
-        (str "/#" path))
+  (js/window.location.assign (str "/#" path))
   (secretary/dispatch! path))

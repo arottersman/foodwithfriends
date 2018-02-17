@@ -32,6 +32,7 @@
                           wipe-local-store-if-401
                           id-token->auth0-profile]]))
 
+
 ;; -- Interceptors --------------------
 
 (defn check-and-throw
@@ -49,7 +50,7 @@
 
 (def ->clear-auth-if-needed (after wipe-local-store-if-401))
 
-(def ->events-uri (after #(navigate-to! "/")))
+(def ->events-uri (after #(navigate-to! "/events")))
 
 (def fwf-interceptors [check-spec-interceptor
                        (when ^boolean js/goog.DEBUG debug)
@@ -150,8 +151,7 @@
        (assoc-in [::db/auth0 ::db/profile]
                  (id-token->auth0-profile id_token))
        (assoc-in [::db/auth0 ::db/polling?]
-                 false)
-       (assoc ::db/page :events))))
+                 false))))
 
 (reg-event-db
  :bad-get-auth0-tokens-response
