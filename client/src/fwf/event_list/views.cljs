@@ -1,54 +1,78 @@
 (ns fwf.event-list.views
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
+            [secretary.core :as secretary]
             [fwf.utils :refer [>evt <sub]]
-            [fwf.db :as db]))
-
-(def arrow-down [:div.expand
-                 {:dangerouslySetInnerHTML {:__html "&#x25BE;"}}])
-
-(def close-x [:div
-              {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
-
-(def email-icon [:span.icon
-                 {:dangerouslySetInnerHTML {:__html "&#x2709;"}}])
-
-(def calendar-icon [:span.icon
-                    {:dangerouslySetInnerHTML {:__html "&#128467;"}}])
-
-(def map-icon [:span.icon
-               {:dangerouslySetInnerHTML {:__html "&#128506;"}}])
-
-(def house-icon [:span.icon
-               {:dangerouslySetInnerHTML {:__html "&#127968;"}}])
-
-(def check-icon [:span.icon
-                 {:dangerouslySetInnerHTML {:__html "&#9989;"}}])
-
-(def leg-icon [:span.icon
-               {:dangerouslySetInnerHTML {:__html "&#127831;"}}])
-
-(def wine-icon [:span.icon
-                {:dangerouslySetInnerHTML {:__html "&#127863;"}}])
-
-(def salad-icon [:span.icon
-                 {:dangerouslySetInnerHTML {:__html "&#129367;"}}])
-
-(def shrimp-icon [:span.icon
-                  {:dangerouslySetInnerHTML {:__html "&#129424;"}}])
+            [fwf.db :as db]
+            [fwf.icons :refer [close-x
+                               down-chevron
+                               spinning-plate
+                               map-icon
+                               appetizer-big
+                               side-big
+                               main-big]]
+            cljsjs.clipboard
+            [secretary.core :as secretary]))
 
 (def dish->icon
-  {"main" leg-icon
-   "side" salad-icon
-   "drinks" wine-icon
-   "appetizer" shrimp-icon})
+  {"main" [:img.icon {:src "img/007-turkey.svg"}]
+   "side" [:img.icon {:src "img/010-salad.svg"}]
+   "drinks" [:img.icon {:src "img/006-glass.svg"}]
+   "appetizer" [:img.icon {:src "img/008-food-1.svg"}]})
 
-(defn account-nav []
+(defn email-chain-button [target]
+  ;; Let this live self-contained,
+  ;; detached from reframe.
+  ;; from https://github.com/cljsjs/packages/tree/master/clipboard
+  (let [clipboard-atom (atom nil)]
+    (reagent/create-class
+     {:display-name "clipboard-button"
+      :component-did-mount
+      #(let [clipboard (new js/Clipboard (reagent/dom-node %))]
+         (reset! clipboard-atom clipboard))
+      :component-will-unmount
+      #(when-not (nil? @clipboard-atom)
+         (.destroy @clipboard-atom)
+         (reset! clipboard-atom nil))
+      :reagent-render
+      (fn []
+         [:button.email-chain
+          {:data-clipboard-target target}
+          "Copy emails to clipboard"])})))
+
+(defn rsvp-button [event]
+  (fn [event]
+    (let [rsvped? (::db/rsvped? event)
+          rsvping? (<sub [:upcoming-events/rsvping?])
+          participant-str (::db/participant-str event)
+          event-id (::db/event-id event)
+          button-txt (if rsvped?
+                       "You're going!"
+                       "RSVP")]
+      [:button.rsvp
+       {:disabled (or rsvped? rsvping?)
+        :on-click #(>evt [:rsvp event-id])}
+       button-txt " " participant-str])))
+
+(defn menu []
   (fn []
-    [:nav.site-nav
-     [:h2.site-title "Pot*uck"]
-     [:button.signout {:on-click #(>evt [:signout])} "Sign out"]
-     ]))
+    (let [showing-events (<sub [:showing-events])]
+      [:nav.event-list-menu
+       [:button.menu-item
+        {:class (if (= showing-events :user-events)
+                  "-active")
+         :on-click #(>evt [:set-showing-events
+                           :user-events])}
+        "past"]
+       [:button.menu-item
+        {:class (if (= showing-events :upcoming-events)
+                  "-active")
+         :on-click #(>evt [:set-showing-events
+                           :upcoming-events])}
+        "all events"]
+       [:button.menu-item
+        {:on-click #(>evt [:signout])}
+        "log out"]])))
 
 (defn assigned-dish-modal []
   (fn []
@@ -58,9 +82,9 @@
         [:button.close {:type "button"
                   :on-click #(>evt [:clear-assigned-dish-modal])}
          close-x]
-        [:h3 "Great"]
+        [:h3 "Great!"]
         (dish->icon assigned-dish)
-        [:span "You're assigned to bring a "
+        [:p.user-assigned-dish "You're assigned to bring: "
          [:strong assigned-dish]]]])))
 
 (defn user-detail-modal []
@@ -76,26 +100,27 @@
                               [:set-user-detail
                                nil])}
          close-x]
+
+        (dish->icon assigned-dish)
         [:h3.name name]
-        [:a email]
+        [:p.email email]
         (if (not-empty dietary-restrictions)
-            [:div.user-info
-             [:h5 "Dietary Restrictions:"]
-             [:p (clojure.string/join
-                  ", " dietary-restrictions)]])
+          [:p.user-dietary-rest
+           "Dietary restrictions: "(clojure.string/join
+                                    ", " dietary-restrictions)])
         (if assigned-dish
           [:div.user-info
-           [:label "Assigned Dish"]
-           (dish->icon assigned-dish)
-           [:p assigned-dish]])]])))
+           [:p.user-assigned-dish "Assigned to bring: "
+            [:strong assigned-dish]]])]])))
 
 
 (defn user-link [user]
   (fn [user]
     [:li.person
-     (dish->icon (:assigned-dish user))
-     [:a.user {:on-click #(>evt [:set-user-detail user])}
-          (::db/name user)]]))
+     [:button.user
+      {:on-click #(>evt [:set-user-detail user])}
+      (dish->icon (::db/assigned-dish user))
+      [:p.name (::db/name user)]]]))
 
 (defn host-user-list [users]
   (fn [users]
@@ -106,104 +131,117 @@
 (defn participant-list [participants]
   (fn [participants]
     (if (empty? participants)
-      [:p.no-people "No one yet..."]
+      [:p.no-people "No one has RSVPed yet. Be the first!"]
       [:ul.people
        (for [user participants]
          ^{:key (str "participant"
                      (::db/user-id user))
            } [user-link user])])))
 
-(defn event-detail [event dismiss]
-  (fn [event]
+(defn event-detail [event dismiss editable?]
+  (fn [event dismiss editable?]
     (let [{:keys
            [fwf.db/participants
             fwf.db/agg-dietary-restrictions
             fwf.db/dietary-restrictions
-            fwf.db/host
             fwf.db/title
-            fwf.db/description
-            fwf.db/happening-at
-            fwf.db/address-str
+            fwf.db/happening-at-date
+            fwf.db/happening-at-time
+            fwf.db/hosted-by-str
+            fwf.db/address
+            fwf.db/city
+            fwf.db/state
+            fwf.db/zipcode
             fwf.db/google-maps-url
             fwf.db/email-chain
-            fwf.db/rsvped?]} event
-          host-users (::db/users host)]
+            fwf.db/rsvped?
+            fwf.db/event-id]} event]
       [:div.event-detail
+       [:h1.event-date happening-at-date]
+       (if editable?
+         [:button.edit {:on-click (fn []
+                                    (>evt [:event-form/from-event event]))}
+          "Edit"])
        [:button.close {:on-click dismiss} close-x]
-       [:h3 title]
-       [:p.description description]
-       [:div.time calendar-icon happening-at]
-       [:div.location map-icon
-        [:a.location {:href google-maps-url}
-         address-str]]
+       [:div.event-time happening-at-time]
+       [:div.event-hosts "Hosted by " hosted-by-str]
+       [:p.event-description title]
+       [:a.event-location {:href google-maps-url
+                           :rel "noopener noreferrer"
+                           :target "_blank"}
+        map-icon
+        [:div.event-address
+         [:p.address-line address]
+         [:p.address-line city ", " state]
+         [:p.address-line zipcode]]]
+       [:div.email-chain-container
+        (if rsvped?
+          [:div
+           [:div.too-tiny-to-see {:id "email-chain"} email-chain]
+           [email-chain-button "#email-chain"]]
+          [rsvp-button event])]
        (if (not-empty agg-dietary-restrictions)
-         [:p.list-label "What can't people eat?"])
-       [:p (clojure.string/join
-            ", " dietary-restrictions)]
-       [:p.list-label "Who's house is this?"]
-       [host-user-list host-users]
-       [:p.list-label "Who's going?"]
-       [participant-list participants event]
-       [:div.bottom-row
-        [(if rsvped?
-           :a.email-chain.-rsvped
-           :a.email-chain)
-         {:href (str "mailto:" email-chain)}
-         "Email Everyone"]]])))
+         [:p.event-dietary-restrictions
+          "Dietary restrictions: "
+          (clojure.string/join
+           ", " agg-dietary-restrictions)])
+        (if rsvped?
+          [participant-list participants event])])))
 
 (defn event-snippet [event on-click]
   (fn [{:keys
-        [fwf.db/title
-         fwf.db/happening-at
-         fwf.db/google-maps-url
-         fwf.db/address-str]}]
+        [fwf.db/happening-at-date
+         fwf.db/happening-at-time
+         fwf.db/hosted-by-str]}
+       on-click]
     [:button.event-snippet {:on-click on-click}
-     arrow-down
-     [:h3 title]
-     [:p.time calendar-icon happening-at]
-     map-icon [:a {:href google-maps-url}
-               address-str]]))
+     [:h1.event-date happening-at-date]
+     down-chevron
+     [:div.event-time happening-at-time]
+     [:div.event-hosts "Hosted by " hosted-by-str]]))
 
 (defn upcoming-event [event detail?]
   (fn [event detail?]
-    (let [rsvping? (<sub [:upcoming-events/rsvping?])
-          event-id (::db/event-id event)
-          participant-str (::db/participant-str event)]
+    (let [{:keys [fwf.db/event-id
+                  fwf.db/your-house?
+                  fwf.db/rsvped?]} event]
       [:li.event
+       {:class (if (or your-house? rsvped?)
+                 "-your-event")}
        (cond
          detail?
          [event-detail
           event
-          #(>evt [:set-upcoming-event-detail nil])]
+          #(>evt [:set-upcoming-event-detail nil])
+          your-house?]
          :else
-         [event-snippet
-          event
-          #(>evt
-            [:set-upcoming-event-detail
-             event-id])])
-       (if (::db/rsvped? event)
-         [:div.event-tag.rsvped check-icon
-          participant-str]
-
-         [:button.event-tag.rsvp
-          {:on-click #(>evt [:rsvp event-id])
-           :disabled rsvping?}
-          (if (::db/your-house? event)
-            house-icon)
-          "RSVP" participant-str])])))
+         [:div.event-snippet-container
+           [event-snippet
+            event
+            #(>evt
+              [:set-upcoming-event-detail
+               event-id])]
+           [rsvp-button event]])])))
 
 (defn upcoming-events []
   (fn []
-    (let [events (<sub [:pretty-upcoming-events])
+    (let [polling? (<sub [:upcoming-events/polling?])
+          events (<sub [:pretty-upcoming-events])
           detail-event-id (<sub [:upcoming-events/detail-id])
           error (<sub [:upcoming-events/error])]
       (cond
-        (nil? events)
-        [:p.polling "polling"]
-        (empty? events)
-        [:p.no-events "No upcoming events"]
+        polling?
+        [:div.center-container
+         spinning-plate]
         error
-        [:p.error "Error getting the upcoming events"]
+        [:div.center-container
+         main-big
+         [:p.error "Uh-oh, something went wrong while we were trying to get the upcoming events!"]]
+        (empty? events)
+        [:div.center-container
+         appetizer-big
+         [:p.no-events
+          "Nobody has made an event yet. Check back soon, or bother your cohort to get on it!"]]
         :else
         [:ul.events
          (map (fn [event]
@@ -216,7 +254,7 @@
 
 (defn user-event [event detail?]
   (fn [event detail?]
-    [:li.event
+    [:li.event.-your-event
      (cond
        detail?
        [event-detail
@@ -231,16 +269,23 @@
 
 (defn user-events []
   (fn []
-    (let [events (<sub [:pretty-user-events])
-          detail-event-id (<sub [:user-events/detail-id])
-          error (<sub [:user-events/error])]
+    (let [polling? (<sub [:user-events/polling?])
+          user-polling? (<sub [:user/polling?])
+          events (<sub [:pretty-user-events]) detail-event-id (<sub [:user-events/detail-id])
+          error (<sub [:user-events/error])
+          user-error (<sub [:user/error])]
       (cond
-        (nil? events)
-        [:p.polling "polling"]
+        (or polling? user-polling?)
+        [:div.center-container
+         spinning-plate]
+        (or error user-error)
+        [:div.center-container
+         main-big
+         [:p.error "...something went wrong getting your past events. Guess you should just live in the present."]]
         (empty? events)
-        [:p.no-events "You don't have any events"]
-        error
-        [:p.error "Error getting your events"]
+        [:div.center-container
+         side-big
+         [:p.no-events "You don't have any past events. Anything you've RSVPed to, or hosted will show up here."]]
         :else
         [:ul.events
          (map (fn [event]
@@ -259,26 +304,9 @@
        (cond ;; modals
          user-detail [user-detail-modal]
          user-assigned-dish [assigned-dish-modal])
-       [account-nav]
        [:section.events-section
-        [:div.event-tab-group
-         [:input.tab-radio
-          {:type "radio"
-           :id "upcoming-events"
-           :checked (= showing-events :upcoming-events)
-           :on-change #(>evt [:set-showing-events
-                              :upcoming-events])}]
-         [:label.event-tab {:for "upcoming-events"}
-          "upcoming events"]
-         [:input.tab-radio
-          {:type "radio"
-           :id "user-events"
-           :checked (= showing-events :user-events)
-           :on-change #(>evt [:set-showing-events
-                              :user-events])}]
-         [:label.event-tab {:for "user-events"}
-          "my events"]]
-        [:div.active-event-tab
+        [menu]
+        [:div.event-list-container
          (case showing-events
            :upcoming-events [upcoming-events]
            :user-events [user-events])]]

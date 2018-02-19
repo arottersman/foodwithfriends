@@ -99,14 +99,6 @@
      "Uh-oh, something went wrong!")))
 
 (reg-sub
- :event-form/error-string
- (fn [_ _]
-   [(subscribe [:event-form/error-response])])
- (fn [[event-form/error-response] _]
-   (if error-response
-     "Uh-oh, something went wrong!")))
-
-(reg-sub
  :host-form/search-valid?
  (fn [_ _]
    [(subscribe [:host-form/address])

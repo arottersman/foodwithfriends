@@ -1,4 +1,5 @@
 (ns fwf.events
+
   (:require
    [ajax.core :as ajax]
    [day8.re-frame.http-fx]
@@ -31,6 +32,7 @@
                           wipe-local-store-if-401
                           id-token->auth0-profile]]))
 
+
 ;; -- Interceptors --------------------
 
 (defn check-and-throw
@@ -48,7 +50,7 @@
 
 (def ->clear-auth-if-needed (after wipe-local-store-if-401))
 
-(def ->events-uri (after #(navigate-to! "/")))
+(def ->events-uri (after #(navigate-to! "/events")))
 
 (def fwf-interceptors [check-spec-interceptor
                        (when ^boolean js/goog.DEBUG debug)
@@ -64,7 +66,8 @@
   check-spec-interceptor]
  (fn [{:keys [db local-store-auth0]} _]
    (let [auth0-default (::db/auth0 default-db)
-         auth0 (merge auth0-default local-store-auth0)]
+         current-auth0 (::db/auth0 db)
+         auth0 (merge auth0-default current-auth0 local-store-auth0)]
      {:db (merge db (assoc default-db
                            ::db/auth0 auth0))})))
 
@@ -86,8 +89,8 @@
  :set-login-error
  fwf-interceptors
  (fn [db [error-message]]
-   (assoc-in db [::db/auth0 ::db/error-response]
-             {:status-text error-message})))
+   (assoc-in db [::db/auth0 ::db/error-response :status-text]
+             error-message)))
 
 ;; -- API Events and FX -----------
 
@@ -101,6 +104,7 @@
      (-> db
          (assoc-in [::db/the-user ::db/user] user)
          (assoc-in [::db/the-user ::db/stale?] false)
+         (assoc-in [::db/the-user ::db/polling?] false)
          (cond-> (or (nil? host-id)
                      (= 0 host-id))
            (assoc ::db/page :add-host-to-user))))))
@@ -113,6 +117,7 @@
    (let [status (:status error-response)]
      (-> db
          (assoc-in [::db/the-user ::db/stale?] false)
+         (assoc-in [::db/the-user ::db/polling?] false)
          (cond-> (= status 404)
            (->
             (assoc ::db/page :create-user)
@@ -125,6 +130,12 @@
            (-> (assoc ::db/page ::db/login)
                (assoc-in [:auth0 :access-token] "")
                (assoc-in [:auth0 :profile] {})))))))
+
+(reg-event-db
+ :set-user-polling
+ fwf-interceptors
+ (fn [db _]
+   (assoc-in db [::db/the-user ::db/polling?] true)))
 
 ;; auth0 api
 (reg-event-db
@@ -140,8 +151,7 @@
        (assoc-in [::db/auth0 ::db/profile]
                  (id-token->auth0-profile id_token))
        (assoc-in [::db/auth0 ::db/polling?]
-                 false)
-       (assoc ::db/page :events))))
+                 false))))
 
 (reg-event-db
  :bad-get-auth0-tokens-response
@@ -177,4 +187,4 @@
                                      {:keywords? true})
                  :on-success        [:get-auth0-tokens-success]
                  :on-failure        [:bad-get-auth0-tokens-response]}
-    :db (assoc-in db [:auth0 :polling?] true)}))
+    :db (assoc-in db [::db/auth0 ::db/polling?] true)}))

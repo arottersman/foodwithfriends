@@ -3,12 +3,37 @@
             [re-frame.core :as re-frame]
             [fwf.constants :refer [auth0-authorize-url]]
             [fwf.utils :refer [<sub]]
+            [fwf.icons :refer [spinning-plate
+                               appetizer-big]]
             [fwf.event-list.views :refer [events-page]]
             [fwf.event-form.views :refer [event-form]]
             [fwf.user-form.views
              :refer [user-form
                      add-host-to-user-page]]
             [fwf.admin.views :refer [send-invites-page]]))
+
+(defn header [text]
+  (fn [text]
+    [:div.header
+     [:div.stripes
+      [:div.stripe]
+      [:div.stripe.-middle]
+      [:div.stripe]]
+     [:div.hexagon
+      [:span text]]]))
+
+(def page->html
+  {:create-user [user-form]
+   :add-host-to-user [add-host-to-user-page]
+   :events [events-page]
+   :edit-event [event-form {:edit? true}]
+   :create-event [event-form]
+   :send-invites [send-invites-page]})
+
+(defn redirect [url]
+  (fn [url]
+    (js/window.location.assign url)
+    nil))
 
 (defn app []
   (let [page (<sub [:page])
@@ -19,24 +44,24 @@
         {:keys [fwf.db/sub]} (<sub [:auth0/profile])
         user (<sub [:user]) user-assigned-dish (<sub [:user-assigned-dish])]
     [:main.app
+     [header "FORKFUL"]
      (cond
        auth0-polling?
-       [:p.polling "Getting your profile..."]
+       [:div.limbo-page
+        spinning-plate]
        ;; needs auth?
        (or (not access-token)
            (not sub)
            (= page :login))
-       [:section.auth
+       [:div
         (if auth0-error
-          [:p.error auth0-error])
-        [:a.login {:href auth0-authorize-url}
-         "New phone, who this?"]]
+          [:div.limbo-page
+           appetizer-big
+           auth0-error]
+           [redirect auth0-authorize-url]
+          )]
        :else
-         (cond ;; main page content
-           (or (= user :no-account)
-               (= page :create-user)) [user-form]
-           (= page :add-host-to-user) [add-host-to-user-page]
-           (= page :events) [events-page]
-           (= page :create-event) [event-form]
-           (= page :send-invites) [send-invites-page]
-           :else [:div "Page not found"]))]))
+         (or (page->html page)
+             [:div.limbo-page
+              appetizer-big
+              "Not sure what you're looking for, so here's a lil' shrimpy."]))]))

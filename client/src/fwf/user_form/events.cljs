@@ -75,7 +75,7 @@
  fwf-interceptors
  (fn [db [new-max-occupancy]]
    (assoc-in db [::db/host-form ::db/host-form-fields ::db/max-occupancy]
-             new-max-occupancy)))
+             (max new-max-occupancy 0))))
 
 ;; Create user api
 (reg-event-db

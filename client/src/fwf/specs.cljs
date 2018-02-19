@@ -29,6 +29,9 @@
          ::db/sub
          ::db/email]
    :opt [::db/name]))
+(spec/def ::db/error-response
+  (spec/keys
+   :un-opt [:status-text]))
 (spec/def ::db/auth0 (spec/keys
                       :opt [::db/polling?
                             ::db/access-token
@@ -37,7 +40,7 @@
 
 ;; User
 (spec/def ::db/host-id nullable-int? )
-(spec/def ::db/auth0-id string?)
+(spec/def ::db/auth0-id nullable-string?)
 (spec/def ::db/user-id int?)
 (spec/def ::db/name nullable-string?)
 (spec/def ::db/dietary-restrictions
@@ -62,6 +65,7 @@
 (spec/def ::db/the-user
   (spec/keys :opt [::db/user
                    ::db/stale?
+                   ::db/polling?
                    ::db/error-response]))
 ;; User Form
 (spec/def ::db/user-form
@@ -157,13 +161,17 @@
    :req [::db/hour
          ::db/minute
          ::db/time-of-day]))
+(spec/def ::db/email-participants? boolean?)
+
 (spec/def ::db/event-form
   (spec/keys :req [::db/title
                    ::db/description
                    ::db/happening-at-date
                    ::db/happening-at-time
                    ::db/polling?]
-             :opt [::db/error-response]))
+             :opt [::db/error-response
+                   ::db/event-id
+                   ::db/email-participants?]))
 
 (spec/def ::db/possible-event-datetime cljs-time.core/date?)
 (spec/def

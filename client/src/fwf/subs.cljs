@@ -19,7 +19,7 @@
 (reg-sub
  :auth0/error
  (fn [db _]
-   (-> db ::db/auth0 ::db/error-response :status-message)))
+   (-> db ::db/auth0 ::db/error-response :status-text)))
 
 (reg-sub
  :auth0/profile
@@ -44,12 +44,17 @@
 (reg-sub
  :user/error
  (fn [db _]
-   (-> db ::db/the-user ::db/error-response :status-message)))
+   (-> db ::db/the-user ::db/error :status-text)))
 
 (reg-sub
  :user/stale?
  (fn [db _]
    (-> db ::db/the-user ::db/stale?)))
+
+(reg-sub
+ :user/polling?
+ (fn [db _]
+   (-> db ::db/the-user ::db/polling?)))
 
 ;; -- Remote Dependent Subscriptions --
 (reg-sub-raw
@@ -61,9 +66,11 @@
            access-token (<sub [:auth0/access-token])
            {:keys [fwf.db/sub]} (<sub [:auth0/profile])]
        (if (and stale? sub access-token)
-         (api-helpers/fetch-user!
-          {:auth0-id sub
-           :access-token access-token
-           :on-success #(>evt [:set-user %])
-           :on-failure #(>evt [:set-user-error %])})))
+         (do
+           (>evt [:set-user-polling])
+           (api-helpers/fetch-user!
+            {:auth0-id sub
+             :access-token access-token
+             :on-success #(>evt [:set-user %])
+             :on-failure #(>evt [:set-user-error %])}))))
       (get-in @app-db [::db/the-user ::db/user])))))

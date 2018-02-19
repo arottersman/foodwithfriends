@@ -26,9 +26,9 @@
    (-> db ::db/event-form ::db/title)))
 
 (reg-sub
- :event-form/description
+ :event-form/event-id
  (fn [db _]
-   (-> db ::db/event-form ::db/description)))
+   (-> db ::db/event-form ::db/event-id)))
 
 (reg-sub
  :event-form/happening-at-date
@@ -52,12 +52,26 @@
 
 ;; -- subscription handlers ---
 (reg-sub
+ :event-form/error-string
+ (fn [_ _]
+   [(subscribe [:event-form/error-response])])
+ (fn [[event-form/error-response] _]
+   (if error-response
+     "Uh-oh, something went wrong! Are you sure it's your turn to create an event?")))
+
+(reg-sub
  :event-form/grouped-date-options
  (fn [_ _]
    [(subscribe [:possible-event-start])
-    (subscribe [:possible-event-end])])
- (fn [[start end]]
-   (let [possible-dates      (cljs-time.periodic/periodic-seq
+    (subscribe [:possible-event-end])
+    (subscribe [:event-form/happening-at-date])])
+ (fn [[possible-start possible-end
+       happening-at-date]]
+   (let [start               (cljs-time.core/earliest
+                              possible-start happening-at-date)
+         end                 (cljs-time.core/latest
+                              possible-end happening-at-date)
+         possible-dates      (cljs-time.periodic/periodic-seq
                               start end
                               (cljs-time.core/days 1))
          grouped-by-month    (group-by cljs-time.core/month possible-dates)]

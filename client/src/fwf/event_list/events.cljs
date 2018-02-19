@@ -63,6 +63,8 @@
    (-> db
        (assoc-in [::db/upcoming-events ::db/stale?]
                  false)
+       (assoc-in [::db/upcoming-events ::db/polling?]
+                 false)
        (assoc-in [::db/upcoming-events ::db/events]
                  (map parse-event events-response)))))
 
@@ -74,9 +76,17 @@
    (as-> db d
      (assoc-in d [::db/upcoming-events ::db/stale?]
                false)
+     (assoc-in d [::db/upcoming-events ::db/polling?]
+               false)
      (assoc-in d [::db/upcoming-events ::db/error-response]
                error-response)
      (handle-401-if-needed d error-response))))
+
+(reg-event-db
+ :set-upcoming-events-polling
+ fwf-interceptors
+ (fn [db _]
+   (assoc-in db [::db/upcoming-events ::db/polling?] true)))
 
 (reg-event-db
  :set-user-events
@@ -84,6 +94,7 @@
  (fn [db [events-response]]
    (-> db
        (assoc-in [::db/user-events ::db/stale?] false)
+       (assoc-in [::db/user-events ::db/polling?] false)
        (assoc-in [::db/user-events ::db/events]
                  (map parse-event events-response)))))
 
@@ -95,9 +106,17 @@
    (as-> db d
      (assoc-in d [::db/user-events ::db/stale?]
                false)
+     (assoc-in d [::db/user-events ::db/polling?]
+               false)
      (assoc-in d [::db/user-events ::db/error-response]
                error-response)
      (handle-401-if-needed d error-response))))
+
+(reg-event-db
+ :set-user-events-polling
+ fwf-interceptors
+ (fn [db _]
+   (assoc-in db [::db/user-events ::db/polling?] true)))
 
 ;; rsvp api
 (reg-event-db

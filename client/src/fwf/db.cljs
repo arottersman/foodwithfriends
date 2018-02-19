@@ -56,6 +56,7 @@
                   ::happening-at-date (cljs-time.core/now)
                   ::title ""
                   ::description ""
+                  ::email-participants? false
                   ::polling? false}
                  ::possible-event-start
                  possible-event-start
@@ -78,13 +79,6 @@
 (defn wipe-local-store-if-401 [_ [{:keys [status]}]]
   (if (= status 401)
     (wipe-local-store)))
-
-(defn- js-str->clj [js-str]
-  (try (-> js-str
-           (js/JSON.parse)
-           (js->clj :keywordize-keys true))
-       (catch js/Object e
-         "")))
 
 (defn- parse-auth0-profile [{:keys [name
                                     email_verified
@@ -114,4 +108,4 @@
                 (clojure.string/trim
                  access-token) #"^\"|\"$" "")
                ::profile
-               (parse-auth0-profile (js-str->clj (parse-id-token id-token)))})))))
+               (id-token->auth0-profile id-token)})))))

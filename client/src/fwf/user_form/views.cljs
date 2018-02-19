@@ -1,7 +1,8 @@
 (ns fwf.user-form.views
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
-            [fwf.utils :refer [>evt <sub]]))
+            [fwf.utils :refer [>evt <sub]]
+            [fwf.db :as db]))
 
 (def close-x [:div
               {:dangerouslySetInnerHTML {:__html "&#x2613;"}}])
@@ -33,7 +34,7 @@
          [:p.error error-string])
 
        [:form.user-form
-        [:h3.title "create your account"]
+        [:h2.title "Create your account"]
         [:label "Name"
           [:input {:value (<sub [:user-form/name])
                    :on-change #(>evt [:user-form/update-name
@@ -57,17 +58,18 @@
                 (str "dietary restriction " idx)
                 }]))
           dietary-restrictions)]
-        [:button {:type "button"
-                  :on-click #(>evt [:create-user])
-                  :disabled polling?}
-         "Next"]]])))
+        [:div.user-submit-container
+         [:button.done {:type "button"
+                        :on-click #(>evt [:create-user])
+                        :disabled polling?}
+          "Next"]]]])))
 
 (defn user-host-form []
   (fn []
     (let [valid? (<sub [:host-form/search-valid?])
           polling? (<sub [:host-form/polling?])]
       [:form.user-form
-       [:h3.title "where do you live?"]
+       [:h2.title "Where do you live?"]
        [:label "Address"
         [:input {:value (<sub [:host-form/address])
                  :on-change #(>evt [:host-form/update-address
@@ -88,32 +90,33 @@
                  :on-change #(>evt [:host-form/update-zipcode
                                     (-> % .-target .-value)])
                  }]]
-       [:button {:on-click #(>evt [:search-hosts])
-                 :disabled (or (not valid?)
-                               polling?)
-                 :type "button"}
-        "Next"]
+       [:div.user-submit-container
+        [:button.done {:on-click #(>evt [:search-hosts])
+                       :disabled (or (not valid?)
+                                     polling?)
+                       :type "button"}
+         "Next"]]
        ]))
 )
 
 (defn host-search-results []
   (fn []
     (let [searched-hosts (<sub [:host-form/searched-hosts])]
-      [:form.user-form
+      [:form.user-form.search-results
        (map (fn [host]
-              ^{:key (str "host" (host :host-id))}
+              ^{:key (str "host" (::db/host-id host))}
               [:button.host
                {:on-click
-                #(>evt [:add-user-to-host (host :host-id)])
+                #(>evt [:add-user-to-host (::db/host-id host)])
                 :type "button"}
-               [:h4 (host :address)]
-               [:p (str (host :city) ", "
-                        (host :state) ", "
-                        (host :zipcode))]
-               [:label "home of:"]
+               [:h4 (::db/address host)]
+               [:p (str (::db/city host) ", "
+                        (::db/state host) ", "
+                        (::db/zipcode host))]
+               [:label "Home of:"]
                [:p (clojure.string/join
                          ", "
-                         (map :name (host :users)))]])
+                         (map ::db/name (::db/users host)))]])
             searched-hosts)]
       )))
 
@@ -130,11 +133,13 @@
                  #(>evt
                    [:host-form/update-max-occupancy
                     (-> % .-target .-value (js/parseInt))])}]]
-       [:button {:on-click #(>evt [:create-host])
-                 :disabled (every? true? [(not valid?)
-                                          polling?])
-                 :type "button"}
-        "Submit"]])))
+
+       [:div.user-submit-container
+        [:button.done {:on-click #(>evt [:create-host])
+                       :disabled (every? true? [(not valid?)
+                                                polling?])
+                       :type "button"}
+         "Submit"]]])))
 
 (defn add-host-to-user-page []
   (fn []
@@ -152,6 +157,7 @@
          [:div
           (if (not-empty searched-hosts)
             [:div
+             [:h3.form-section-title "Live in one of these homes?"]
              [host-search-results]
              [:h3.form-section-title "None of these?"]])
            [create-host-form]])

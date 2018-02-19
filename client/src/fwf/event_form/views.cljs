@@ -53,7 +53,9 @@
              (cond
                (= date :not-in-month)
                [:div.blank-date "x"]
-               (cljs-time.core/= date selected)
+               (cljs-time.core/=
+                (cljs-time.core/at-midnight date)
+                (cljs-time.core/at-midnight selected))
                [:div.selected-date (cljs-time.core/day date)]
                :else
                [:button {:type "button"
@@ -101,32 +103,39 @@
       [:option {:value :am} "AM"]
       [:option {:value :pm} "PM"]]]))
 
-(defn event-form []
-  (fn []
+(defn event-form [{:keys [edit?]}]
+  (fn [{:keys [edit?]}]
     (let [title (<sub [:event-form/title])
-          description (<sub [:event-form/description])
           {:keys [fwf.db/hour
                   fwf.db/minute
-                  fwf.db/time-of-day]}
+                  fwf.db/time-of-day
+                  fwf.db/email-participants?]}
           (<sub [:event-form/happening-at-time-strs])
+          event-id (<sub [:event-form/event-id])
           valid? (<sub [:event-form/valid?])
           polling? (<sub [:event-form/polling?])
-          error (<sub [:event-form/error-string])]
+          error (<sub [:event-form/error-string])
+          submit-event (if edit?
+                         :edit-event
+                         :create-event)]
+      (if (and edit? (not event-id))
+        (js/location.assign "/#/"))
       [:form.event-form
-       [:h2 "create your pot*uck!"]
-       [:label "What should we call your pot*uck?"
+       [:h2.event-header "Create your event"]
+       (if (not edit?)
+         [:section.cant-host
+          [:p.cant-host-info "Can't host this time around?"]
+          [:button.cant-host-button {:on-click #(>evt [:cant-host])
+                                     :disabled polling?}
+           "That's okay, just click here."]])
+       [:label "Give a description or maybe a little theme"
         [:input {:value title
                  :on-change #(>evt [:event-form/update-title
                                     (-> % .-target .-value)])
                  }]]
-       [:label "Add a description, if you want"
-        [:textarea {:value description
-                    :on-change #(>evt [:event-form/update-description
-                                       (-> % .-target .-value)])
-                    }]]
-       [:h4 "when will it be?"]
+       [:h3 "When will it be?"]
        [multi-month-datepicker]
-       [:h4 "what time?"]
+       [:h3 "What time?"]
        [timepicker {:hour hour
                     :minute minute
                     :time-of-day time-of-day
@@ -135,14 +144,22 @@
                                         hour-str
                                         minute-str
                                         new-time-of-day]))}]
-       [:p.info
-        "after you're done, make sure to rsvp to your"
-        " event."]
+       (if edit?
+         [:label.email-participants
+          [:input.email-participants-checkbox
+           {:type "checkbox"
+            :on-change #(>evt [:event-form/toggle-email-participants])
+            :checked email-participants?}]
+          "Email event participants with these updates?" ]
+         [:p.info
+          "After you're done, make sure to rsvp to your"
+          " event."])
        (if error
          [:p.error error])
-       [:button.done {:type "button"
-                      :on-click #(>evt [:create-event])
-                      :disabled (or (not valid?)
-                                    polling?)}
-        "Done!"]
+       [:div.event-submit-container
+        [:button.done {:type "button"
+                       :on-click #(>evt [submit-event])
+                       :disabled (or (not valid?)
+                                     polling?)}
+         "Done!"]]
        ])))
