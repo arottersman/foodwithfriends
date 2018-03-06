@@ -41,7 +41,7 @@
                                       (-> % .-target .-value)])
                    }]]
         [:label "Email"]
-        [:p.prefilled-input (:email profile)]
+        [:p.prefilled-input (::db/email profile)]
         [:label "Dietary Restrictions"
          (map-indexed
           (fn [idx restriction]

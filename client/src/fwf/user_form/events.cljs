@@ -175,9 +175,9 @@
                                     (or profile-name
                                         (::db/name user-form))
                                     :auth0Id
-                                    (:sub profile)
+                                    (::db/sub profile)
                                    :email
-                                    (:email profile)
+                                    (::db/email profile)
                                     :dietaryRestrictions
                                     (::db/dietary-restrictions
                                      user-form)}
