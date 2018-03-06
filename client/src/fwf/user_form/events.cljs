@@ -225,31 +225,12 @@
                                       :maxOccupancy
                                       (::db/max-occupancy
                                        host-form)
-                                      :users [{:userId user-id}]}
+                                      :users [{:userId (user-id db)}]}
                    :response-format  (ajax/json-response-format
                                       {:keywords? true})
                    :on-success       [:create-host-success]
                    :on-failure       [:bad-create-host-response]}
       :db (host-form-polling db)})))
-
-(reg-event-fx
- :add-user-to-host
- (fn
-   [{db :db} [_ host-id]]
-   {:http-xhrio {:method           :post
-                 :headers          (headers db)
-                 :uri              (str
-                                    api-url
-                                    "/hosts/user/?hostId="
-                                    host-id)
-                 :keywords?        true
-                 :format           (ajax/json-request-format)
-                 :params           {:userId (user-id db)}
-                 :response-format  (ajax/json-response-format
-                                    {:keywords? true})
-                 :on-success       [:create-host-success]
-                 :on-failure       [:bad-create-host-response]}
-    :db (host-form-polling db)}))
 
 (reg-event-fx
  :add-user-to-host
